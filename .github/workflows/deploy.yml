@@ -25,11 +25,10 @@ jobs:
       - name: Traer el repositorio
         uses: actions/checkout@v4
 
+      # Requiere que Pages esté activado una vez en
+      # Settings → Pages → Source: GitHub Actions.
       - name: Configurar Pages
         uses: actions/configure-pages@v5
-        with:
-          # Habilita Pages automáticamente la primera vez, sin tocar Settings
-          enablement: true
 
       - name: Empaquetar el sitio
         uses: actions/upload-pages-artifact@v3
