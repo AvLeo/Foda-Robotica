@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parada 6 · A la pista — Seguidor de Línea</title>
+<meta name="description" content="Calibrar el auto seguidor de línea en la pista real: velocidad, fuerza de corrección, motores desparejos y el compromiso entre velocidad y curvas.">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏎️</text></svg>">
+</head>
+<body data-parada="6" data-color="pista">
+
+<header class="barra">
+  <div class="barra-int">
+    <a class="marca" href="index.html"><span class="marca-icono">🤖</span> Seguidor de Línea</a>
+    <div class="barra-sep"></div>
+    <button class="btn-icono" id="btn-tema" type="button" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <div class="progreso-barra"><div class="progreso-relleno"></div></div>
+</header>
+
+<main class="envoltorio">
+
+  <div class="cabecera-parada">
+    <div class="migas"><a href="index.html">Ruta</a> <span>›</span> <span>Parada 6</span></div>
+    <span class="etiqueta-parada">🏎️ Parada 6 · El ajuste</span>
+    <h1>A la pista</h1>
+    <p class="bajada chico">
+      El auto está armado y el código está cargado. Ahora empieza la parte que separa un auto que
+      "más o menos anda" de uno que da vueltas sin fallar.
+    </p>
+    <div class="meta-parada">
+      <span>⏱️ 1h 30 – 2h</span>
+      <span>🎯 4 desafíos</span>
+      <span>🎮 Con simulador</span>
+    </div>
+  </div>
+
+  <div class="bloque b-objetivo">
+    <div class="bloque-titulo">🎯 Al terminar esta parada vas a poder…</div>
+    <ul style="margin-bottom:0">
+      <li>Ajustar tu auto cambiando tres números y sabiendo qué hace cada uno.</li>
+      <li>Explicar por qué más velocidad no siempre es mejor.</li>
+      <li>Compensar por software que un motor sea más flojo que el otro.</li>
+      <li>Dar una vuelta completa a la pista sin tocar el auto.</li>
+    </ul>
+  </div>
+
+  <h2>🎮 Experimentá primero acá</h2>
+  <p>
+    Este simulador usa <strong>exactamente la misma lógica</strong> que programaste. Movele los
+    controles y mirá qué pasa. Cada cosa que descubras acá se aplica igual a tu auto de verdad —
+    pero acá no gastás pilas ni perseguís nada por el piso.
+  </p>
+
+  <div class="simulador" id="sim-pista"></div>
+
+  <div class="bloque b-pensar">
+    <div class="bloque-titulo">🤔 Buscá estas cuatro cosas en el simulador</div>
+    <ol style="margin-bottom:0">
+      <li>Poné la velocidad al máximo. ¿Qué pasa en las curvas cerradas? Mirá el contador de
+        "se salió".</li>
+      <li>Bajá la <strong>fuerza de corrección</strong> a 40%. El auto zigzaguea suave pero se sale
+        en las curvas. ¿Por qué?</li>
+      <li>Ahora subila a 170% (la rueda de adentro va en reversa): corrige violento y pierde
+        velocidad en cada corrección… pero <strong>te deja subir la velocidad base sin salirte</strong>.
+        ¿Te conviene ese cambio?</li>
+      <li>Buscá la <strong>mejor vuelta posible</strong> combinando los tres controles. Anotá los
+        valores: son tu punto de partida para el auto real. Pista: la combinación ganadora
+        <em>no</em> es la de velocidad máxima con corrección normal.</li>
+    </ol>
+  </div>
+
+  <h2>⚖️ El compromiso que no se puede esquivar</h2>
+  <p>
+    Todo auto seguidor de línea vive tironeado entre dos cosas que no pueden ser máximas al mismo
+    tiempo:
+  </p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 620 200" width="620" height="200" role="img"
+         aria-label="Balanza entre velocidad y estabilidad">
+      <g>
+        <rect x="30" y="45" width="230" height="110" rx="12" fill="#ffe9ee" stroke="#e11d48" stroke-width="2"/>
+        <text x="145" y="76" text-anchor="middle" class="txt-svg" font-size="14" font-weight="800" fill="#e11d48">MÁS VELOCIDAD</text>
+        <text x="145" y="100" text-anchor="middle" class="txt-svg-chico">Vueltas más rápidas</text>
+        <text x="145" y="120" text-anchor="middle" class="txt-svg-chico">Menos tiempo para reaccionar</text>
+        <text x="145" y="140" text-anchor="middle" class="txt-svg-chico" font-weight="700" fill="#e11d48">Se sale en las curvas</text>
+      </g>
+      <g>
+        <rect x="360" y="45" width="230" height="110" rx="12" fill="#e3f7ef" stroke="#059669" stroke-width="2"/>
+        <text x="475" y="76" text-anchor="middle" class="txt-svg" font-size="14" font-weight="800" fill="#059669">MÁS ESTABILIDAD</text>
+        <text x="475" y="100" text-anchor="middle" class="txt-svg-chico">No se sale nunca</text>
+        <text x="475" y="120" text-anchor="middle" class="txt-svg-chico">Aguanta curvas cerradas</text>
+        <text x="475" y="140" text-anchor="middle" class="txt-svg-chico" font-weight="700" fill="#059669">Es lento</text>
+      </g>
+      <text x="310" y="95" text-anchor="middle" class="txt-svg" font-size="24" font-weight="800" fill="#8a90aa">⇄</text>
+      <text x="310" y="185" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700">
+        Tu trabajo es encontrar el punto justo PARA TU PISTA</text>
+    </svg>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🏁 En una carrera de verdad</div>
+    <p style="margin-bottom:0">
+      Gana el auto que <strong>termina</strong>, no el más rápido. Un auto que da la vuelta en 12
+      segundos todas las veces le gana a uno que la da en 8 pero se sale una de cada tres.
+      Ajustá para terminar primero; la velocidad viene después.
+    </p>
+  </div>
+
+  <h2>🎛️ Los tres números que ajustás</h2>
+
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Número</th><th>Qué controla</th><th>Si lo subís</th><th>Si lo bajás</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>VEL_NORMAL</code></td>
+          <td>Velocidad en las rectas</td>
+          <td>Más rápido, más riesgo de salirse</td>
+          <td>Más seguro, más lento</td>
+        </tr>
+        <tr>
+          <td><code>VEL_GIRO</code></td>
+          <td>La rueda de <em>afuera</em> al corregir</td>
+          <td>Corrige más fuerte</td>
+          <td>Corrige suave, puede no alcanzar</td>
+        </tr>
+        <tr>
+          <td><code>VEL_FRENO</code></td>
+          <td>La rueda de <em>adentro</em> al corregir</td>
+          <td>Giro más abierto y suave</td>
+          <td>Giro más cerrado. En negativo, la rueda va en reversa y pivota en el lugar</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">🔬 Cambiá UNA cosa por vez</div>
+    <p style="margin-bottom:0">
+      Es la regla básica de cualquier experimento, y es la que más se rompe cuando hay ansiedad.
+      Cambiá un número, probá tres vueltas, anotá el resultado. Si cambiás tres cosas juntas y mejora,
+      no sabés cuál lo mejoró — y cuando empeore, no vas a saber volver.
+      <strong>Llevá una tabla escrita de cada prueba.</strong>
+    </p>
+  </div>
+
+  <h2>💻 Código con ajuste fino</h2>
+  <p>
+    Esta versión agrega dos cosas prácticas: <strong>compensación de motores desparejos</strong>
+    (nunca son iguales) y un modo de <strong>diagnóstico por el Monitor Serie</strong>.
+  </p>
+
+  <div class="caja-codigo">
+    <div class="codigo-cab">
+      <span class="codigo-nombre">06_ajuste_fino.ino</span>
+      <a class="btn-bajar" href="codigo/06_ajuste_fino.ino" download>⬇ .ino</a>
+      <button class="btn-copiar" type="button">📋 Copiar</button>
+    </div>
+    <pre><code>// ============================================================
+//  SEGUIDOR DE LINEA - con ajuste fino
+//  Todo lo que se toca esta arriba de todo.
+// ============================================================
+
+const int ENA = 5, IN1 = 6, IN2 = 7;
+const int IN3 = 8, IN4 = 9, ENB = 10;
+const int SENSOR_IZQ = 2, SENSOR_DER = 3;
+
+const int VE_LINEA = HIGH;    // cambiar a LOW si tu sensor es al reves
+
+// ---------- LOS NUMEROS QUE AJUSTAS ----------
+int VEL_NORMAL = 150;   // velocidad en recta
+int VEL_GIRO   = 175;   // rueda de afuera al corregir
+int VEL_FRENO  = 0;     // rueda de adentro (probá -80 para giro brusco)
+
+// Compensacion: ningun par de motores es igual.
+// Si el auto se va SIEMPRE a la derecha, subi COMP_IZQ o baja COMP_DER.
+float COMP_IZQ = 1.00;
+float COMP_DER = 1.00;
+
+const bool DIAGNOSTICO = false;   // true = manda datos al Monitor Serie
+
+void setup() {
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT); pinMode(ENB, OUTPUT);
+  pinMode(SENSOR_IZQ, INPUT); pinMode(SENSOR_DER, INPUT);
+
+  if (DIAGNOSTICO) Serial.begin(9600);
+
+  frenar();
+  delay(2000);    // tiempo para soltar el auto y sacar la mano
+}
+
+void loop() {
+  bool izq = (digitalRead(SENSOR_IZQ) == VE_LINEA);
+  bool der = (digitalRead(SENSOR_DER) == VE_LINEA);
+
+  if (!izq &amp;&amp; !der) {
+    motorIzquierdo(VEL_NORMAL);
+    motorDerecho(VEL_NORMAL);
+  } else if (izq &amp;&amp; !der) {
+    motorIzquierdo(VEL_FRENO);
+    motorDerecho(VEL_GIRO);
+  } else if (!izq &amp;&amp; der) {
+    motorIzquierdo(VEL_GIRO);
+    motorDerecho(VEL_FRENO);
+  } else {
+    frenar();
+  }
+
+  if (DIAGNOSTICO) {
+    Serial.print(izq); Serial.print(" "); Serial.println(der);
+  }
+}
+
+// ============================================================
+
+void frenar() {
+  motorIzquierdo(0);
+  motorDerecho(0);
+}
+
+void motorIzquierdo(int v) {
+  v = (int)(v * COMP_IZQ);
+  if (v &gt;= 0) { digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW); }
+  else        { digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH); v = -v; }
+  analogWrite(ENA, constrain(v, 0, 255));
+}
+
+void motorDerecho(int v) {
+  v = (int)(v * COMP_DER);
+  if (v &gt;= 0) { digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW); }
+  else        { digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH); v = -v; }
+  analogWrite(ENB, constrain(v, 0, 255));
+}</code></pre>
+  </div>
+
+  <h2>🚀 Desafíos</h2>
+
+  <div class="desafio" data-desafio="1">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 1 · La primera vuelta completa</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        El objetivo mínimo: que el auto dé <strong>una vuelta entera sin que nadie lo toque</strong>.
+        Puede ir lento, puede zigzaguear, puede ser feo. Tiene que llegar.
+      </p>
+      <p style="margin-bottom:0">Empezá con valores conservadores y andá subiendo:</p>
+      <ul style="margin-bottom:0">
+        <li><code>VEL_NORMAL = 120</code></li>
+        <li><code>VEL_GIRO = 150</code></li>
+        <li><code>VEL_FRENO = 0</code></li>
+      </ul>
+      <details class="pista-ayuda">
+        <summary>Se sale siempre en el mismo lugar de la pista</summary>
+        <p style="margin-bottom:0">Entonces el problema no es el código: es <strong>ese pedazo de
+        pista</strong>. Fijate si ahí la curva es más cerrada que en el resto, si hay un hueco en la
+        cinta, si hay un reflejo o una sombra. Corregir la pista es tan válido como corregir el auto.</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="2">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 2 · El auto se va siempre para un lado</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Casi seguro que te pasa: en las rectas el auto tira un poquito hacia un lado. No es tu código:
+        es que <strong>los dos motores nunca son exactamente iguales</strong>, aunque sean del mismo modelo.
+      </p>
+      <p>Arreglalo con los factores de compensación:</p>
+      <ul>
+        <li>Si el auto se va a la <strong>derecha</strong> → el motor derecho es más flojo →
+          <code>COMP_DER = 1.10</code> (o <code>COMP_IZQ = 0.90</code>).</li>
+        <li>Si se va a la <strong>izquierda</strong> → al revés.</li>
+      </ul>
+      <p style="margin-bottom:0">
+        Ajustá de a 0,05 hasta que en una recta larga vaya derecho. <strong>Probalo sobre papel
+        blanco sin línea</strong>, así ves el desvío puro sin que los sensores lo corrijan.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="3">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 3 · Encontrá la velocidad máxima</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Subí <code>VEL_NORMAL</code> de a 10 hasta que el auto se salga. Después bajá 20 y quedate ahí:
+        ese es tu margen de seguridad. Llevá la tabla:
+      </p>
+      <div class="tabla-envase">
+        <table>
+          <thead><tr><th>VEL_NORMAL</th><th>VEL_GIRO</th><th>VEL_FRENO</th><th>¿Terminó la vuelta?</th><th>Tiempo</th></tr></thead>
+          <tbody>
+            <tr><td>120</td><td>150</td><td>0</td><td></td><td></td></tr>
+            <tr><td>130</td><td>160</td><td>0</td><td></td><td></td></tr>
+            <tr><td>140</td><td>170</td><td>0</td><td></td><td></td></tr>
+            <tr><td>___</td><td>___</td><td>___</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-bottom:0">
+        <strong>El truco que casi nadie descubre solo:</strong> cuando subís <code>VEL_NORMAL</code>,
+        también tenés que subir la corrección — o bajar <code>VEL_FRENO</code> a valores negativos.
+        A más velocidad, el auto necesita corregir más fuerte para alcanzar a doblar. Probalo primero
+        en el simulador de arriba.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="4">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 4 · Tres vueltas seguidas y cronómetro</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        La prueba final de esta parada: <strong>tres vueltas consecutivas sin tocar el auto</strong>,
+        cronometradas. Anotá el tiempo de cada una.
+      </p>
+      <p>
+        ¿La tercera fue más lenta que la primera? Bienvenido al mundo real: <strong>la batería se
+        va descargando</strong> y con menos tensión los motores giran menos. Los equipos de
+        competencia cargan la batería justo antes de correr por esta razón.
+      </p>
+      <p style="margin-bottom:0">
+        <strong>Extra:</strong> hacé la carrera entre equipos. Puntaje sugerido: 10 puntos por vuelta
+        completada, −3 por cada vez que hay que tocar el auto, y un bonus al tiempo más rápido.
+        Que la confiabilidad valga más que la velocidad.
+      </p>
+    </div>
+  </div>
+
+  <h2>⚠️ Si no funciona</h2>
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Síntoma</th><th>Qué probar</th></tr></thead>
+      <tbody>
+        <tr><td>Zigzaguea mucho en las rectas</td><td>Corrección demasiado fuerte: subí <code>VEL_FRENO</code> hacia 0, o acercá los sensores un poco entre sí.</td></tr>
+        <tr><td>Se sale en las curvas cerradas</td><td>Corrección demasiado débil: bajá <code>VEL_FRENO</code> (probá −80) o bajá <code>VEL_NORMAL</code>.</td></tr>
+        <tr><td>Se pasa de largo y se pierde</td><td>Va muy rápido para lo cerrada que es la curva. Bajá la velocidad o abrí la curva de la pista.</td></tr>
+        <tr><td>Frena solo en el medio de la nada</td><td>Los dos sensores están viendo negro (caso D). Puede ser una sombra, un reflejo o los sensores demasiado juntos.</td></tr>
+        <tr><td>Anduvo perfecto ayer y hoy no</td><td>Batería. Medila. Es la respuesta el 70% de las veces.</td></tr>
+        <tr><td>Anda distinto según la mesa</td><td>La luz. Recalibrá los sensores en el lugar donde vas a correr.</td></tr>
+        <tr><td>Va bien lento pero se sale al acelerar</td><td>Normal y esperable. La corrección tiene que crecer junto con la velocidad. Es exactamente el problema que resuelve el control proporcional. → Parada 7.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-ok">
+    <div class="bloque-titulo">🎒 Lo que te llevás de esta parada</div>
+    <ul style="margin-bottom:0">
+      <li>Velocidad y estabilidad se pelean. El punto justo depende de tu pista.</li>
+      <li>Los motores nunca son iguales, y eso se compensa por software.</li>
+      <li>Un cambio por vez, y anotado.</li>
+      <li>Con solo 4 estados posibles, el auto corrige a los saltos. Se puede hacer mucho mejor. → Parada 7.</li>
+    </ul>
+  </div>
+
+  <div class="nav-paradas" id="nav-paradas"></div>
+</main>
+
+<footer class="pie">
+  <p>Taller de Robótica · Seguidor de línea con Arduino</p>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+<script src="assets/js/simulador-pista.js"></script>
+</body>
+</html>

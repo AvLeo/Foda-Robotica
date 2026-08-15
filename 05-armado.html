@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parada 5 · El armado — Seguidor de Línea</title>
+<meta name="description" content="Cómo montar el chasis del auto seguidor de línea: orden de montaje, altura y separación de los sensores, reparto del peso y cableado.">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+</head>
+<body data-parada="5" data-color="armado">
+
+<header class="barra">
+  <div class="barra-int">
+    <a class="marca" href="index.html"><span class="marca-icono">🤖</span> Seguidor de Línea</a>
+    <div class="barra-sep"></div>
+    <button class="btn-icono" id="btn-tema" type="button" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <div class="progreso-barra"><div class="progreso-relleno"></div></div>
+</header>
+
+<main class="envoltorio">
+
+  <div class="cabecera-parada">
+    <div class="migas"><a href="index.html">Ruta</a> <span>›</span> <span>Parada 5</span></div>
+    <span class="etiqueta-parada">🔧 Parada 5 · El cuerpo</span>
+    <h1>El armado</h1>
+    <p class="bajada chico">
+      Todo funciona sobre la mesa. Ahora hay que meterlo adentro de algo que se mueva.
+    </p>
+    <div class="meta-parada">
+      <span>⏱️ 1h 30</span>
+      <span>🎯 3 desafíos</span>
+      <span>🔩 Destornillador en mano</span>
+    </div>
+  </div>
+
+  <div class="bloque b-objetivo">
+    <div class="bloque-titulo">🎯 Al terminar esta parada vas a poder…</div>
+    <ul style="margin-bottom:0">
+      <li>Montar todo el auto en el orden correcto, sin tener que desarmar dos veces.</li>
+      <li>Ubicar los sensores a la altura y separación que descubriste midiendo.</li>
+      <li>Repartir el peso para que el auto no patine ni haga caballito.</li>
+      <li>Dejar un cableado que sobreviva a una carrera.</li>
+    </ul>
+  </div>
+
+  <h2>📋 El orden importa</h2>
+  <p>
+    Todo el mundo empieza atornillando el Arduino primero, y todo el mundo lo tiene que sacar después
+    para llegar a los tornillos de los motores. Este es el orden que evita eso:
+  </p>
+
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>#</th><th>Qué montás</th><th>Por qué en ese momento</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td>Los dos motores al chasis</td><td>Sus tornillos quedan debajo de todo. Si dejás esto para el final, desarmás todo.</td></tr>
+        <tr><td><strong>2</strong></td><td>Las ruedas a los motores</td><td>Entran a presión. Empujá derecho, sin doblar el eje.</td></tr>
+        <tr><td><strong>3</strong></td><td>La rueda loca, atrás</td><td>Va lo más atrás posible. Es el tercer punto de apoyo.</td></tr>
+        <tr><td><strong>4</strong></td><td>El soporte de los sensores, adelante</td><td>Antes que las plaquetas, así podés regular la altura cómodo.</td></tr>
+        <tr><td><strong>5</strong></td><td>El L298N, en el medio o atrás</td><td>Cerca de los motores: los cables gruesos quedan cortos.</td></tr>
+        <tr><td><strong>6</strong></td><td>El Arduino, arriba</td><td>Tiene que quedar el USB accesible. <strong>Lo vas a enchufar 30 veces más.</strong></td></tr>
+        <tr><td><strong>7</strong></td><td>La batería, sobre las ruedas motrices</td><td>Es lo más pesado. Ahí es donde da tracción.</td></tr>
+        <tr><td><strong>8</strong></td><td>Todo el cableado</td><td>Recién ahora, cuando sabés dónde quedó cada cosa.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-peligro">
+    <div class="bloque-titulo">🔌 Antes de tocar un solo cable</div>
+    <p style="margin-bottom:0">
+      <strong>Batería desconectada.</strong> Todo el cableado se hace con el auto sin energía.
+      Conectás la batería recién cuando está todo revisado, y con el auto apoyado en el piso, no en la mesa.
+    </p>
+  </div>
+
+  <h2>📐 Dónde van los sensores (la medida que decide todo)</h2>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 620 400" width="620" height="400" role="img"
+         aria-label="Vista superior y lateral del auto con las medidas de montaje de los sensores">
+      <!-- vista superior -->
+      <text x="20" y="24" class="txt-svg" font-weight="800">Vista desde arriba</text>
+
+      <rect x="80" y="45" width="200" height="200" rx="16" fill="#3b4157" stroke="#232838" stroke-width="2"/>
+      <rect x="52" y="95" width="30" height="60" rx="7" fill="#1d2130"/>
+      <rect x="278" y="95" width="30" height="60" rx="7" fill="#1d2130"/>
+      <circle cx="180" cy="228" r="12" fill="#2a3044"/>
+      <text x="180" y="150" text-anchor="middle" class="txt-svg" font-size="11" fill="#aab2cc">batería + placas</text>
+
+      <!-- sensores -->
+      <rect x="140" y="30" width="30" height="20" rx="4" fill="#7c3aed"/>
+      <rect x="190" y="30" width="30" height="20" rx="4" fill="#7c3aed"/>
+      <text x="155" y="22" text-anchor="middle" class="txt-pin" fill="#7c3aed">IZQ</text>
+      <text x="205" y="22" text-anchor="middle" class="txt-pin" fill="#7c3aed">DER</text>
+
+      <!-- línea -->
+      <rect x="168" y="0" width="24" height="290" fill="#16171f" opacity=".85"/>
+      <text x="180" y="308" text-anchor="middle" class="txt-svg-chico">línea 2 cm</text>
+
+      <!-- cota separación -->
+      <line x1="155" y1="70" x2="205" y2="70" stroke="#059669" stroke-width="1.5"/>
+      <line x1="155" y1="64" x2="155" y2="76" stroke="#059669" stroke-width="1.5"/>
+      <line x1="205" y1="64" x2="205" y2="76" stroke="#059669" stroke-width="1.5"/>
+      <text x="315" y="45" class="txt-svg" font-size="12" font-weight="700" fill="#059669">
+        Separación entre sensores</text>
+      <text x="315" y="63" class="txt-svg-chico">Un poco MÁS que el ancho</text>
+      <text x="315" y="78" class="txt-svg-chico">de la línea. Con línea de 2 cm:</text>
+      <text x="315" y="96" class="txt-svg" font-size="13" font-weight="800" fill="#059669">
+        de 2,5 a 4 cm</text>
+      <line x1="205" y1="70" x2="308" y2="55" stroke="#059669" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <text x="315" y="130" class="txt-svg" font-size="12" font-weight="700" fill="#2563eb">
+        Adelante del eje</text>
+      <text x="315" y="148" class="txt-svg-chico">Cuanto más adelante, antes se</text>
+      <text x="315" y="163" class="txt-svg-chico">entera de la curva. Pero muy</text>
+      <text x="315" y="178" class="txt-svg-chico">adelante, corrige de más y zigzaguea.</text>
+
+      <text x="315" y="212" class="txt-svg" font-size="12" font-weight="700" fill="#e11d48">
+        Muy juntos → tiembla</text>
+      <text x="315" y="230" class="txt-svg-chico">(los dos ven la línea todo el tiempo)</text>
+      <text x="315" y="252" class="txt-svg" font-size="12" font-weight="700" fill="#e11d48">
+        Muy separados → reacciona tarde</text>
+      <text x="315" y="270" class="txt-svg-chico">(se sale antes de darse cuenta)</text>
+
+      <!-- vista lateral -->
+      <line x1="20" y1="325" x2="600" y2="325" stroke="#d8dce8" stroke-width="1" stroke-dasharray="4 4"/>
+      <text x="20" y="348" class="txt-svg" font-weight="800">Vista de costado</text>
+
+      <rect x="80" y="358" width="200" height="16" rx="4" fill="#3b4157"/>
+      <circle cx="250" cy="378" r="18" fill="#1d2130"/>
+      <rect x="86" y="374" width="26" height="12" rx="3" fill="#7c3aed"/>
+      <line x1="60" y1="396" x2="330" y2="396" stroke="#8a90aa" stroke-width="2"/>
+      <text x="195" y="392" text-anchor="middle" class="txt-svg-chico">piso</text>
+
+      <line x1="99" y1="386" x2="99" y2="396" stroke="#059669" stroke-width="2"/>
+      <text x="350" y="370" class="txt-svg" font-size="12" font-weight="700" fill="#059669">Altura al piso</text>
+      <text x="350" y="388" class="txt-svg" font-size="13" font-weight="800" fill="#059669">
+        5 a 15 mm (la que mediste)</text>
+      <line x1="105" y1="391" x2="344" y2="378" stroke="#059669" stroke-width="1" stroke-dasharray="3 3"/>
+    </svg>
+    <p class="diagrama-pie">
+      La separación entre sensores tiene que ser <strong>un poco mayor</strong> que el ancho de la
+      línea: así, cuando el auto está centrado, ninguno la toca — pero apenas se desvía un poquito,
+      uno la pisa enseguida.
+    </p>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">📏 Hacé el soporte de sensores regulable</div>
+    <p style="margin-bottom:0">
+      Vas a querer mover los sensores tres o cuatro veces mientras ajustás el auto. Si los pegás con
+      pegamento en el primer intento, vas a sufrir. Usá <strong>precintos, cinta doble faz o un
+      tornillo con ranura</strong>: algo que puedas aflojar y correr en 10 segundos. Es el consejo
+      más rentable de toda esta parada.
+    </p>
+  </div>
+
+  <h2>⚖️ El reparto del peso</h2>
+  <p>
+    Un auto seguidor de línea es tan simple mecánicamente que casi todo lo que puede salir mal es
+    cuestión de peso:
+  </p>
+
+  <div class="dos-col">
+    <div class="bloque b-ok">
+      <div class="bloque-titulo">✅ Bien repartido</div>
+      <ul style="margin-bottom:0">
+        <li>La batería (lo más pesado) <strong>arriba de las ruedas motrices</strong> o apenas
+          adelante de ellas.</li>
+        <li>La rueda loca casi sin peso encima.</li>
+        <li>El auto no se levanta al acelerar.</li>
+      </ul>
+    </div>
+    <div class="bloque b-peligro">
+      <div class="bloque-titulo">❌ Mal repartido</div>
+      <ul style="margin-bottom:0">
+        <li>Todo el peso atrás → las ruedas motrices patinan y el auto no arranca.</li>
+        <li>Todo adelante → la rueda loca se clava y el auto tira para un costado.</li>
+        <li>Peso desbalanceado a un lado → el auto se va siempre para ese lado, aunque el código
+          esté perfecto.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>🔌 Cableado que aguante</h2>
+  <ul>
+    <li><strong>Agrupá por función:</strong> los 6 cables del L298N juntos, los 6 de los sensores
+      juntos. Un precinto cada 5 cm y no se enredan más.</li>
+    <li><strong>Nada de cables colgando abajo.</strong> Se enganchan con la cinta de la pista y
+      frenan el auto.</li>
+    <li><strong>Que sobre un poco de largo, pero poco.</strong> Un cable tirante se desconecta con la
+      primera vibración; uno muy largo se enrosca en la rueda.</li>
+    <li><strong>Los cables de los sensores son los más frágiles.</strong> Van adelante, cerca del
+      piso, y se golpean. Fijalos bien.</li>
+    <li><strong>Dejá el USB accesible.</strong> En serio. Vas a reprogramar el auto muchísimas veces
+      en la parada 6.</li>
+  </ul>
+
+  <h2>🚀 Desafíos</h2>
+
+  <div class="desafio" data-desafio="1">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 1 · Armá el auto completo</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>Seguí el orden de la tabla. Antes de conectar la batería, revisá esta lista en voz alta con
+        un compañero — <strong>uno lee, el otro señala el cable</strong>:</p>
+      <ul>
+        <li>☐ GND del Arduino conectado al GND del L298N</li>
+        <li>☐ Batería + al <code>+12V</code>, batería − al <code>GND</code> (¡no al revés!)</li>
+        <li>☐ Los jumpers de ENA y ENB <strong>sacados</strong></li>
+        <li>☐ Los 6 cables de control en los pines 5, 6, 7, 8, 9, 10</li>
+        <li>☐ Sensores en los pines 2 y 3, alimentados con 5V y GND</li>
+        <li>☐ Sensores a la altura que mediste, mirando al piso</li>
+        <li>☐ Ningún cable pelado tocando otro</li>
+        <li>☐ Ningún cable rozando una rueda</li>
+      </ul>
+      <p style="margin-bottom:0" class="chico">Esta revisión cruzada es la que hacen los equipos de
+        verdad antes de encender algo. Toma dos minutos y evita quemar un módulo.</p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="2">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 2 · La prueba de la sacudida</label>
+      <span class="nivel n-facil">Fácil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Con la batería desconectada, agarrá el auto y <strong>sacudilo suavemente</strong>, como si
+        tomara una curva fuerte. Después dalo vuelta y sacudilo de nuevo.
+      </p>
+      <p style="margin-bottom:0">
+        ¿Se soltó algo? ¿Se movió un sensor? ¿Se salió un cable dupont? Arreglalo ahora. Todo lo que
+        se suelta en tu mano se va a soltar en la pista, pero ahí no vas a saber qué fue.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="3">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 3 · Documentá TU auto</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Cada auto termina siendo distinto. Hacé una hoja con los datos del tuyo y pegala en la caja
+        del equipo:
+      </p>
+      <ul>
+        <li>Foto o dibujo del auto, de arriba y de costado</li>
+        <li>Tabla de conexiones: cada pin del Arduino y a dónde va</li>
+        <li>Altura de los sensores: ____ mm</li>
+        <li>Separación entre sensores: ____ mm</li>
+        <li>Ancho de la línea de tu pista: ____ mm</li>
+        <li>Velocidad mínima de arranque (parada 2): ____</li>
+        <li>¿Tu sensor da 1 o 0 sobre el negro? ____</li>
+      </ul>
+      <p style="margin-bottom:0">
+        Dentro de dos clases, cuando algo deje de andar, esta hoja te va a decir qué cambió.
+        <strong>Documentar no es burocracia: es la memoria del equipo.</strong>
+      </p>
+    </div>
+  </div>
+
+  <h2>⚠️ Si no funciona</h2>
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Síntoma</th><th>Casi siempre es…</th></tr></thead>
+      <tbody>
+        <tr><td>Andaba en la mesa y ahora no</td><td>Un cable que se soltó al mover todo. Repasá uno por uno.</td></tr>
+        <tr><td>Tira siempre para el mismo lado</td><td>Peso desbalanceado, o un motor más flojo que el otro. Se compensa por software (parada 6).</td></tr>
+        <tr><td>Las ruedas giran pero el auto no avanza</td><td>Patina: falta peso sobre las ruedas motrices. Corré la batería adelante.</td></tr>
+        <tr><td>Los sensores rozan el piso</td><td>Subilos. También revisá que la rueda loca no esté hundida.</td></tr>
+        <tr><td>Anda a los tirones</td><td>Cables tirantes que se desconectan con la vibración, o batería floja.</td></tr>
+        <tr><td>Se resetea el Arduino al arrancar los motores</td><td>El pico de corriente hace caer la tensión. Batería con más capacidad, o alimentar el Arduino aparte.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-ok">
+    <div class="bloque-titulo">🎒 Lo que te llevás de esta parada</div>
+    <ul style="margin-bottom:0">
+      <li>El orden de montaje te ahorra desarmar dos veces.</li>
+      <li>Los sensores separados un poco más que el ancho de la línea, y regulables.</li>
+      <li>El peso va sobre las ruedas motrices.</li>
+      <li>Tenés un auto. Ahora hay que hacerlo <em>andar bien</em>. → Parada 6.</li>
+    </ul>
+  </div>
+
+  <div class="nav-paradas" id="nav-paradas"></div>
+</main>
+
+<footer class="pie">
+  <p>Taller de Robótica · Seguidor de línea con Arduino</p>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+</body>
+</html>
