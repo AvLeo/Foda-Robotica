@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parada 3 · Los sensores IR — Seguidor de Línea</title>
+<meta name="description" content="Cómo funciona un sensor infrarrojo reflectivo, cómo conectarlo al Arduino, cómo leerlo por el Monitor Serie y cómo calibrarlo.">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👁️</text></svg>">
+</head>
+<body data-parada="3" data-color="sensor">
+
+<header class="barra">
+  <div class="barra-int">
+    <a class="marca" href="index.html"><span class="marca-icono">🤖</span> Seguidor de Línea</a>
+    <div class="barra-sep"></div>
+    <button class="btn-icono" id="btn-tema" type="button" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <div class="progreso-barra"><div class="progreso-relleno"></div></div>
+</header>
+
+<main class="envoltorio">
+
+  <div class="cabecera-parada">
+    <div class="migas"><a href="index.html">Ruta</a> <span>›</span> <span>Parada 3</span></div>
+    <span class="etiqueta-parada">👁️ Parada 3 · Los ojos</span>
+    <h1>Los sensores infrarrojos</h1>
+    <p class="bajada chico">
+      Ya sabemos mover el auto. Ahora hay que enseñarle a mirar.
+    </p>
+    <div class="meta-parada">
+      <span>⏱️ 1h – 1h 30</span>
+      <span>🎯 4 desafíos</span>
+      <span>💻 Monitor Serie</span>
+    </div>
+  </div>
+
+  <div class="bloque b-objetivo">
+    <div class="bloque-titulo">🎯 Al terminar esta parada vas a poder…</div>
+    <ul style="margin-bottom:0">
+      <li>Explicar cómo un sensor "ve" sin tener ojos.</li>
+      <li>Leer los dos sensores desde el Monitor Serie y saber qué está viendo cada uno.</li>
+      <li>Calibrar el potenciómetro hasta que la lectura sea confiable.</li>
+      <li>Encontrar la altura correcta de montaje… midiendo, no adivinando.</li>
+    </ul>
+  </div>
+
+  <h2>🧠 ¿Cómo hace para ver?</h2>
+  <p>
+    El módulo tiene dos "ojos" chiquitos, uno al lado del otro. Uno es un <strong>LED infrarrojo</strong>
+    que emite luz que nosotros no vemos, y el otro es un <strong>fototransistor</strong> que mide
+    cuánta de esa luz vuelve rebotada.
+  </p>
+  <p>Y acá está todo el truco, que es de física de primaria:</p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 620 250" width="620" height="250" role="img"
+         aria-label="Comparación de la reflexión infrarroja sobre superficie blanca y sobre superficie negra">
+      <!-- blanco -->
+      <g>
+        <text x="145" y="22" text-anchor="middle" class="txt-svg" font-weight="700">Sobre BLANCO</text>
+
+        <rect x="100" y="45" width="90" height="34" rx="5" fill="#7c3aed"/>
+        <circle cx="122" cy="62" r="7" fill="#1a1c2e"/>
+        <circle cx="168" cy="62" r="7" fill="#3b4157"/>
+        <text x="122" y="40" text-anchor="middle" class="txt-pin" fill="#7c3aed">LED</text>
+        <text x="168" y="40" text-anchor="middle" class="txt-pin" fill="#7c3aed">OJO</text>
+
+        <rect x="40" y="185" width="210" height="26" rx="3" fill="#ffffff" stroke="#c9cddc" stroke-width="2"/>
+        <text x="145" y="230" text-anchor="middle" class="txt-svg-chico">papel blanco</text>
+
+        <path d="M122 72 L98 182" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="6 3"/>
+        <path d="M98 182 L168 72" stroke="#e11d48" stroke-width="2.5"/>
+        <path d="M158 96 L168 74 L152 84" fill="none" stroke="#e11d48" stroke-width="2.5"/>
+
+        <text x="290" y="120" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700"
+              fill="#059669">Vuelve mucha luz</text>
+        <text x="290" y="140" text-anchor="middle" class="txt-svg" font-size="12" fill="#059669">
+          → el sensor dice: no hay línea</text>
+      </g>
+
+      <line x1="330" y1="30" x2="330" y2="225" stroke="#d8dce8" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+      <!-- negro -->
+      <g transform="translate(345,0)">
+        <text x="145" y="22" text-anchor="middle" class="txt-svg" font-weight="700">Sobre NEGRO</text>
+
+        <rect x="100" y="45" width="90" height="34" rx="5" fill="#7c3aed"/>
+        <circle cx="122" cy="62" r="7" fill="#1a1c2e"/>
+        <circle cx="168" cy="62" r="7" fill="#3b4157"/>
+        <text x="122" y="40" text-anchor="middle" class="txt-pin" fill="#7c3aed">LED</text>
+        <text x="168" y="40" text-anchor="middle" class="txt-pin" fill="#7c3aed">OJO</text>
+
+        <rect x="40" y="185" width="210" height="26" rx="3" fill="#16171f"/>
+        <text x="145" y="230" text-anchor="middle" class="txt-svg-chico">cinta negra</text>
+
+        <path d="M122 72 L98 182" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="6 3"/>
+        <path d="M98 182 L112 158" stroke="#e11d48" stroke-width="2.5" opacity=".3"/>
+        <text x="150" y="150" class="txt-svg-chico" fill="#b45309" font-style="italic">se la traga</text>
+
+        <text x="-55" y="120" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700"
+              fill="#dc2626" transform="translate(345,0)">Casi no vuelve nada</text>
+      </g>
+      <text x="635" y="140" text-anchor="end" class="txt-svg" font-size="12" fill="#dc2626">
+        → el sensor dice: ¡acá está la línea!</text>
+    </svg>
+    <p class="diagrama-pie">
+      El blanco refleja casi toda la luz; el negro la absorbe y la convierte en calor.
+      Es lo mismo que sentís cuando te ponés una remera negra al sol.
+    </p>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">💡 ¿Por qué luz infrarroja y no común?</div>
+    <p style="margin-bottom:0">
+      Porque la luz del aula cambia todo el tiempo (alguien prende una lámpara, entra sol por la
+      ventana, pasa una sombra). El infrarrojo no está tan presente en la luz artificial, así que
+      el sensor mide sobre todo <em>su propia</em> luz rebotada. Igual, la luz del sol tiene un montón
+      de infrarrojo: por eso estos autos se vuelven locos al lado de una ventana.
+    </p>
+  </div>
+
+  <h2>🔍 El módulo por dentro</h2>
+  <p>Tu módulo (TCRT5000 o FC-51) tiene tres partes que te importan:</p>
+
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Parte</th><th>Qué hace</th></tr></thead>
+      <tbody>
+        <tr><td><strong>El par de ojos</strong></td><td>Emiten y reciben infrarrojo. Van mirando al piso.</td></tr>
+        <tr><td><strong>El potenciómetro azul</strong></td><td>Ajusta a partir de cuánta luz reflejada considera "hay línea". <strong>Es la calibración.</strong></td></tr>
+        <tr><td><strong>Los LED indicadores</strong></td><td>Uno se prende cuando hay alimentación; el otro, cuando el sensor detecta. Sirven para calibrar sin computadora.</td></tr>
+        <tr><td><strong>Pin OUT</strong></td><td>Da <code>HIGH</code> o <code>LOW</code> según lo que ve. Ya es una decisión tomada: sí o no.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">❓ ¿El negro es 1 o es 0?</div>
+    <p>
+      <strong>Depende de tu módulo.</strong> Hay dos variantes dando vueltas y las dos son comunes.
+      Por eso <em>no vamos a asumir nada</em>: el desafío 1 es justamente descubrirlo.
+    </p>
+    <p style="margin-bottom:0">
+      En todo el material vamos a usar la convención <strong>negro = 1, blanco = 0</strong>.
+      Si tu sensor es al revés, el código trae una línea para darlo vuelta sin tocar nada más.
+    </p>
+  </div>
+
+  <h2>🔌 Conexión</h2>
+  <p>Tres cables por sensor. Pasá el mouse por la tabla para ver cada uno.</p>
+
+  <div class="diagrama" id="diag-sensores">
+    <svg viewBox="0 0 640 330" width="640" height="330" role="img"
+         aria-label="Diagrama de conexión de dos sensores infrarrojos al Arduino">
+      <!-- Arduino -->
+      <g class="pieza">
+        <rect x="400" y="50" width="180" height="240" rx="10" fill="#1f7a6f" stroke="#155e56" stroke-width="2"/>
+        <rect x="420" y="70" width="140" height="55" rx="6" fill="#2a3044"/>
+        <text x="490" y="104" text-anchor="middle" class="txt-svg" font-size="13"
+              font-weight="800" fill="#9fe8dc">ARDUINO</text>
+      </g>
+
+      <g>
+        <rect x="392" y="150" width="16" height="14" rx="2" fill="#0f0f18"/><text x="418" y="161" class="txt-pin" fill="#d5f3ec">5V</text>
+        <rect x="392" y="180" width="16" height="14" rx="2" fill="#0f0f18"/><text x="418" y="191" class="txt-pin" fill="#d5f3ec">GND</text>
+        <rect x="392" y="215" width="16" height="14" rx="2" fill="#0f0f18"/><text x="418" y="226" class="txt-pin" fill="#d5f3ec">pin 2</text>
+        <rect x="392" y="245" width="16" height="14" rx="2" fill="#0f0f18"/><text x="418" y="256" class="txt-pin" fill="#d5f3ec">pin 3</text>
+      </g>
+
+      <!-- sensor izquierdo -->
+      <g class="pieza">
+        <rect x="40" y="55" width="130" height="70" rx="8" fill="#5b21b6"/>
+        <circle cx="70" cy="112" r="8" fill="#1a1c2e"/>
+        <circle cx="95" cy="112" r="8" fill="#3b4157"/>
+        <rect x="120" y="70" width="26" height="26" rx="4" fill="#3b82f6"/>
+        <text x="88" y="80" text-anchor="middle" class="txt-svg" font-size="11" font-weight="700" fill="#e9ddff">SENSOR IZQ</text>
+      </g>
+      <text x="133" y="112" text-anchor="middle" class="txt-svg-chico" font-size="9" fill="#c4b5fd">pot.</text>
+
+      <!-- sensor derecho -->
+      <g class="pieza">
+        <rect x="40" y="195" width="130" height="70" rx="8" fill="#5b21b6"/>
+        <circle cx="70" cy="252" r="8" fill="#1a1c2e"/>
+        <circle cx="95" cy="252" r="8" fill="#3b4157"/>
+        <rect x="120" y="210" width="26" height="26" rx="4" fill="#3b82f6"/>
+        <text x="88" y="220" text-anchor="middle" class="txt-svg" font-size="11" font-weight="700" fill="#e9ddff">SENSOR DER</text>
+      </g>
+
+      <!-- cables sensor izq -->
+      <path class="cable" data-cable="s1-vcc" d="M170 68 L280 68 L280 157 L392 157" stroke="#e11d48" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="s1-gnd" d="M170 88 L262 88 L262 187 L392 187" stroke="#2b2f3f" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="s1-out" d="M170 108 L244 108 L244 222 L392 222" stroke="#f59e0b" stroke-width="3.5" fill="none"/>
+
+      <!-- cables sensor der -->
+      <path class="cable" data-cable="s2-vcc" d="M170 208 L300 208 L300 157 L392 157" stroke="#e11d48" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="s2-gnd" d="M170 228 L318 228 L318 187 L392 187" stroke="#2b2f3f" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="s2-out" d="M170 248 L336 248 L336 252 L392 252" stroke="#22c55e" stroke-width="3.5" fill="none"/>
+
+      <text x="300" y="26" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700">
+        Los dos sensores comparten 5V y GND</text>
+      <text x="320" y="316" text-anchor="middle" class="txt-svg-chico">
+        Si te faltan pines de 5V y GND, usá una protoboard para repartirlos</text>
+    </svg>
+  </div>
+
+  <div class="tabla-envase">
+    <table class="tabla-cables" data-diagrama="diag-sensores">
+      <thead><tr><th>Sensor</th><th>Pin del módulo</th><th>Arduino</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr data-cable="s1-vcc"><td>Izquierdo</td><td><code>VCC</code></td><td><code>5V</code></td><td><span class="punto-cable" style="background:#e11d48"></span>Rojo</td></tr>
+        <tr data-cable="s1-gnd"><td>Izquierdo</td><td><code>GND</code></td><td><code>GND</code></td><td><span class="punto-cable" style="background:#2b2f3f"></span>Negro</td></tr>
+        <tr data-cable="s1-out"><td>Izquierdo</td><td><code>OUT</code> / <code>D0</code></td><td><code>pin 2</code></td><td><span class="punto-cable" style="background:#f59e0b"></span>Amarillo — acá viaja lo que ve</td></tr>
+        <tr data-cable="s2-vcc"><td>Derecho</td><td><code>VCC</code></td><td><code>5V</code></td><td><span class="punto-cable" style="background:#e11d48"></span>Rojo</td></tr>
+        <tr data-cable="s2-gnd"><td>Derecho</td><td><code>GND</code></td><td><code>GND</code></td><td><span class="punto-cable" style="background:#2b2f3f"></span>Negro</td></tr>
+        <tr data-cable="s2-out"><td>Derecho</td><td><code>OUT</code> / <code>D0</code></td><td><code>pin 3</code></td><td><span class="punto-cable" style="background:#22c55e"></span>Verde</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🔋 ¿Y si no me alcanzan los pines de 5V?</div>
+    <p style="margin-bottom:0">
+      El Arduino Uno tiene un solo pin de 5V y tres de GND. Con dos sensores ya te quedaste corto.
+      Solución: una protoboard chica. Llevás un cable de 5V y uno de GND del Arduino a dos filas de
+      la protoboard, y de ahí alimentás los dos sensores. Cuando pasemos a 4 sensores en la parada 7
+      esto deja de ser opcional.
+    </p>
+  </div>
+
+  <h2>💻 Leer lo que ve el sensor</h2>
+  <p>
+    El Monitor Serie es tu ventana al cerebro del robot. Este programa no mueve nada: solo te muestra,
+    diez veces por segundo, qué está viendo cada ojo.
+  </p>
+
+  <div class="caja-codigo">
+    <div class="codigo-cab">
+      <span class="codigo-nombre">03a_leer_sensores.ino</span>
+      <a class="btn-bajar" href="codigo/03a_leer_sensores.ino" download>⬇ .ino</a>
+      <button class="btn-copiar" type="button">📋 Copiar</button>
+    </div>
+    <pre><code>// ============================================
+//  Parada 3 - Leer los sensores
+//  No mueve nada. Solo mira y cuenta lo que ve.
+// ============================================
+
+const int SENSOR_IZQ = 2;
+const int SENSOR_DER = 3;
+
+void setup() {
+  pinMode(SENSOR_IZQ, INPUT);
+  pinMode(SENSOR_DER, INPUT);
+
+  Serial.begin(9600);          // abrir la conversacion con la compu
+  Serial.println("Sensores listos. Pasa la mano por abajo.");
+}
+
+void loop() {
+  int izq = digitalRead(SENSOR_IZQ);
+  int der = digitalRead(SENSOR_DER);
+
+  Serial.print("IZQ: ");
+  Serial.print(izq);
+  Serial.print("   DER: ");
+  Serial.print(der);
+
+  // Un dibujito para leerlo de un vistazo
+  Serial.print("   [");
+  Serial.print(izq == 1 ? "#" : ".");
+  Serial.print(der == 1 ? "#" : ".");
+  Serial.println("]");
+
+  delay(100);   // 10 lecturas por segundo, para poder leerlo
+}</code></pre>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">🖥️ Para abrir el Monitor Serie</div>
+    <p style="margin-bottom:0">
+      En el IDE de Arduino: <strong>Herramientas → Monitor Serie</strong>, o el ícono de la lupa
+      arriba a la derecha, o <code>Ctrl+Shift+M</code>. Importante: abajo a la derecha del monitor
+      tiene que decir <strong>9600 baudios</strong>, el mismo número que pusiste en
+      <code>Serial.begin(9600)</code>. Si no coinciden, ves jeroglíficos.
+    </p>
+  </div>
+
+  <h2>🚀 Desafíos</h2>
+
+  <div class="desafio" data-desafio="1">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 1 · Descubrí la convención de TU sensor</label>
+      <span class="nivel n-facil">Fácil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>Cargá <code>03a_leer_sensores.ino</code>, abrí el Monitor Serie y completá esta tabla
+        en tu carpeta:</p>
+      <div class="tabla-envase">
+        <table>
+          <thead><tr><th>Qué le pongo abajo</th><th>Sensor izquierdo</th><th>Sensor derecho</th></tr></thead>
+          <tbody>
+            <tr><td>Papel blanco a 1 cm</td><td>____</td><td>____</td></tr>
+            <tr><td>Cinta negra a 1 cm</td><td>____</td><td>____</td></tr>
+            <tr><td>Nada (apuntando al aire)</td><td>____</td><td>____</td></tr>
+            <tr><td>La palma de tu mano</td><td>____</td><td>____</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-bottom:0">
+        <strong>Con eso ya sabés si tu sensor da 1 o 0 sobre el negro.</strong> Anotalo en grande,
+        lo vas a necesitar en la parada 4. Y fijate qué pasa apuntando al aire: ¿se parece más al
+        blanco o al negro? ¿Por qué?
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="2">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 2 · Calibrá el potenciómetro</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Con el destornillador chico, girá el potenciómetro azul mientras mirás el LED indicador del
+        módulo. Buscá el punto en el que:
+      </p>
+      <ul>
+        <li>Sobre el <strong>blanco</strong> el LED está de un modo…</li>
+        <li>…y al pasar a la <strong>cinta negra</strong> cambia, de forma clara y repetible.</li>
+      </ul>
+      <p>
+        El punto justo está más o menos <strong>en el medio</strong> entre los dos extremos donde deja
+        de cambiar. Si lo dejás demasiado cerca de un borde, cualquier sombra lo hace fallar.
+      </p>
+      <p style="margin-bottom:0">
+        <strong>Los dos sensores hay que calibrarlos por separado</strong>, uno nunca queda igual
+        que el otro. Movelos sobre la pista de verdad, no sobre una hoja suelta.
+      </p>
+      <details class="pista-ayuda">
+        <summary>El truco del barrido</summary>
+        <p style="margin-bottom:0">Girá el pot despacio hasta que el LED justo cambia: ese es el
+        borde A. Seguí girando para el otro lado hasta que vuelve a cambiar: borde B. Ahora poné el
+        pot <strong>en el punto medio entre A y B</strong>. Ese es el lugar más robusto, el que más
+        aguanta cambios de luz.</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="3">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 3 · Un LED que avisa</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Programá el LED que ya viene en la placa (pin 13, <code>LED_BUILTIN</code>) para que se
+        <strong>prenda cuando cualquiera de los dos sensores vea negro</strong>. Así podés probar
+        el auto sin tener la compu al lado.
+      </p>
+      <div class="caja-codigo">
+        <div class="codigo-cab">
+          <span class="codigo-nombre">03b_led_testigo.ino</span>
+          <a class="btn-bajar" href="codigo/03b_led_testigo.ino" download>⬇ .ino</a>
+          <button class="btn-copiar" type="button">📋 Copiar</button>
+        </div>
+        <pre><code>// ============================================
+//  Parada 3 - LED testigo
+//  Se prende cuando algun sensor ve la linea.
+// ============================================
+
+const int SENSOR_IZQ = 2;
+const int SENSOR_DER = 3;
+
+// Cambia esto si TU sensor da 0 sobre el negro:
+const int VE_LINEA = HIGH;
+
+void setup() {
+  pinMode(SENSOR_IZQ, INPUT);
+  pinMode(SENSOR_DER, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void loop() {
+  bool izq = (digitalRead(SENSOR_IZQ) == VE_LINEA);
+  bool der = (digitalRead(SENSOR_DER) == VE_LINEA);
+
+  if (izq || der) {
+    digitalWrite(LED_BUILTIN, HIGH);
+  } else {
+    digitalWrite(LED_BUILTIN, LOW);
+  }
+}</code></pre>
+      </div>
+      <p><strong>Extra:</strong> modificá el programa para que el LED parpadee rápido si ven negro
+        <em>los dos</em>, y quede fijo si lo ve uno solo. Vas a necesitar <code>millis()</code> o
+        un <code>delay()</code> corto.</p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="4">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 4 · Experimento: ¿a qué altura los pongo?</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Este es un experimento científico de verdad, con tabla y todo. Apoyá el sensor sobre pilas de
+        monedas o cartones para variar la altura y anotá si distingue bien blanco de negro:
+      </p>
+      <div class="tabla-envase">
+        <table>
+          <thead><tr><th>Altura al piso</th><th>¿Distingue blanco de negro?</th><th>Observaciones</th></tr></thead>
+          <tbody>
+            <tr><td>2 mm (casi tocando)</td><td>____</td><td></td></tr>
+            <tr><td>5 mm</td><td>____</td><td></td></tr>
+            <tr><td>10 mm</td><td>____</td><td></td></tr>
+            <tr><td>20 mm</td><td>____</td><td></td></tr>
+            <tr><td>40 mm</td><td>____</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Segunda parte:</strong> repetí la mejor altura en tres condiciones de luz distintas:
+        aula con luz normal, con la luz apagada, y al lado de una ventana con sol. ¿Cambia algo?</p>
+      <p style="margin-bottom:0">
+        Escribí una conclusión de dos renglones. Esa conclusión es la que vas a usar cuando montes
+        los sensores en el chasis, en la parada 5.
+      </p>
+      <details class="pista-ayuda">
+        <summary>Lo que vas a encontrar (no lo abras antes de medir)</summary>
+        <p style="margin-bottom:0">
+          Muy pegado al piso, el cono de luz es tan chiquito que cualquier irregularidad lo confunde,
+          y además raspa. Muy alto, vuelve poca luz y el contraste entre blanco y negro se hace
+          demasiado chico. La zona buena para el TCRT5000 suele estar entre <strong>5 y 15 mm</strong>.
+          Y sí: el sol arruina todo, porque tiene muchísimo infrarrojo.
+        </p>
+      </details>
+    </div>
+  </div>
+
+  <h2>⚠️ Si no funciona</h2>
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Síntoma</th><th>Revisá esto</th></tr></thead>
+      <tbody>
+        <tr><td>Siempre lee lo mismo, pase lo que pase</td><td>Potenciómetro girado hasta el tope. Volvé al centro y calibrá de nuevo.</td></tr>
+        <tr><td>El Monitor Serie muestra símbolos raros</td><td>Baudios mal: tienen que ser 9600 en los dos lados.</td></tr>
+        <tr><td>El LED del módulo no prende nunca</td><td>No le llega alimentación. Revisá VCC y GND.</td></tr>
+        <tr><td>Los valores saltan solos sin mover nada</td><td>Está justo en el borde de detección, o hay luz variable. Recalibrá al punto medio.</td></tr>
+        <tr><td>Un sensor anda y el otro no</td><td>Cambialos de pin en el Arduino. Si el problema se muda de pin, es el cable o el pin; si se queda, es el módulo.</td></tr>
+        <tr><td>Anda distinto en cada mesa del aula</td><td>Distinto piso, distinta luz. Por eso se calibra <em>sobre la pista de verdad</em>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>✅ ¿Entendiste?</h2>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">1.</span>
+      ¿Por qué el sensor distingue el negro del blanco?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Porque mide la temperatura de la superficie</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Porque el blanco refleja el infrarrojo y el negro lo absorbe</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> Porque tiene una camarita adentro</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Porque el negro conduce electricidad</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="El módulo emite infrarrojo y mide cuánto vuelve. Blanco = vuelve mucho. Negro = vuelve poco. Por eso también falla sobre superficies negras brillantes: brillan, o sea reflejan."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">2.</span>
+      Tu auto anda perfecto en el aula y se vuelve loco en el patio. ¿Por qué?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Los motores andan distinto al aire libre</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> La luz del sol tiene mucho infrarrojo y satura los sensores</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> El Arduino necesita wifi</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Las pilas rinden menos afuera</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="El sol es una fuente enorme de infrarrojo. El sensor ya no puede distinguir su propia luz rebotada del bombardeo del sol. Los autos de competencia llevan una faldita opaca alrededor de los sensores justamente por esto."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">3.</span>
+      ¿Para qué sirve el potenciómetro azul del módulo?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Para regular la velocidad del auto</button>
+      <button class="quiz-op" type="button"><span class="letra">B</span> Para elegir si la salida es 1 o 0</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">C</span> Para ajustar desde cuánta luz reflejada considera que "hay línea"</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Para cambiar el color que detecta</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Es el umbral de decisión. El sensor mide una cantidad continua de luz, y el potenciómetro fija a partir de qué punto eso se convierte en un 1 o un 0."></div>
+  </div>
+
+  <div class="bloque b-ok">
+    <div class="bloque-titulo">🎒 Lo que te llevás de esta parada</div>
+    <ul style="margin-bottom:0">
+      <li>El sensor emite infrarrojo y mide cuánto vuelve: blanco refleja, negro absorbe.</li>
+      <li>La calibración con el potenciómetro no es opcional, y va sobre la pista real.</li>
+      <li>La altura de montaje importa, y la mediste vos.</li>
+      <li>Ya tenés ojos y músculos por separado. Falta el cerebro que los una. → Parada 4.</li>
+    </ul>
+  </div>
+
+  <div class="nav-paradas" id="nav-paradas"></div>
+</main>
+
+<footer class="pie">
+  <p>Taller de Robótica · Seguidor de línea con Arduino</p>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+</body>
+</html>

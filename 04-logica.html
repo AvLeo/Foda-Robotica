@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parada 4 · La lógica — Seguidor de Línea</title>
+<meta name="description" content="La tabla de verdad de dos sensores y el código que convierte lecturas en movimiento. La parada clave del taller.">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+</head>
+<body data-parada="4" data-color="logica">
+
+<header class="barra">
+  <div class="barra-int">
+    <a class="marca" href="index.html"><span class="marca-icono">🤖</span> Seguidor de Línea</a>
+    <div class="barra-sep"></div>
+    <button class="btn-icono" id="btn-tema" type="button" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <div class="progreso-barra"><div class="progreso-relleno"></div></div>
+</header>
+
+<main class="envoltorio">
+
+  <div class="cabecera-parada">
+    <div class="migas"><a href="index.html">Ruta</a> <span>›</span> <span>Parada 4</span></div>
+    <span class="etiqueta-parada">🧠 Parada 4 · El cerebro</span>
+    <h1>La lógica</h1>
+    <p class="bajada chico">
+      Tenés ojos. Tenés músculos. Falta lo que decide. Esta es <strong>la</strong> parada del taller.
+    </p>
+    <div class="meta-parada">
+      <span>⏱️ 1h 30 – 2h</span>
+      <span>🎯 4 desafíos</span>
+      <span>✏️ Empieza en papel</span>
+    </div>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">✋ Pará. Antes de tocar la computadora.</div>
+    <p style="margin-bottom:0">
+      Esta parada arranca <strong>en papel y hablando entre todos</strong>. La computadora se abre
+      recién en el desafío 2. Si te salteás la parte de papel, vas a copiar un código que funciona
+      sin entender por qué — y cuando falle en la pista no vas a saber qué tocar.
+    </p>
+  </div>
+
+  <h2>🔁 Lo único que hace un robot</h2>
+  <p>
+    Todo el programa del seguidor cabe en tres palabras que se repiten para siempre:
+  </p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 600 170" width="600" height="170" role="img"
+         aria-label="Ciclo sensar, pensar, actuar">
+      <g>
+        <rect x="30" y="45" width="140" height="70" rx="12" fill="#f2ecff" stroke="#7c3aed" stroke-width="2"/>
+        <text x="100" y="76" text-anchor="middle" class="txt-svg" font-size="14" font-weight="800" fill="#7c3aed">1 · SENSAR</text>
+        <text x="100" y="96" text-anchor="middle" class="txt-svg-chico" fill="#7c3aed">digitalRead()</text>
+      </g>
+      <g>
+        <rect x="230" y="45" width="140" height="70" rx="12" fill="#fff0e4" stroke="#ea580c" stroke-width="2"/>
+        <text x="300" y="76" text-anchor="middle" class="txt-svg" font-size="14" font-weight="800" fill="#ea580c">2 · PENSAR</text>
+        <text x="300" y="96" text-anchor="middle" class="txt-svg-chico" fill="#ea580c">if / else</text>
+      </g>
+      <g>
+        <rect x="430" y="45" width="140" height="70" rx="12" fill="#ffe9ee" stroke="#e11d48" stroke-width="2"/>
+        <text x="500" y="76" text-anchor="middle" class="txt-svg" font-size="14" font-weight="800" fill="#e11d48">3 · ACTUAR</text>
+        <text x="500" y="96" text-anchor="middle" class="txt-svg-chico" fill="#e11d48">analogWrite()</text>
+      </g>
+
+      <path d="M170 80 L224 80" stroke="#8a90aa" stroke-width="2.5" marker-end="url(#f4)"/>
+      <path d="M370 80 L424 80" stroke="#8a90aa" stroke-width="2.5" marker-end="url(#f4)"/>
+      <path d="M500 120 C500 155, 100 155, 100 120" fill="none" stroke="#8a90aa"
+            stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#f4)"/>
+      <text x="300" y="165" text-anchor="middle" class="txt-svg-chico">y otra vez, miles de veces por segundo</text>
+
+      <defs>
+        <marker id="f4" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+          <path d="M0 0 L9 4.5 L0 9 z" fill="#8a90aa"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <p>
+    En Arduino eso es exactamente el <code>loop()</code>. Y la parte del medio — <em>pensar</em> —
+    es lo que vamos a diseñar ahora.
+  </p>
+
+  <h2>📐 El primer paso: dónde van los sensores</h2>
+  <p>
+    Los dos sensores <strong>no van encima de la línea</strong>. Van uno a cada lado, con la línea
+    pasando por el medio. Cuando el auto está bien encaminado, <strong>ninguno de los dos la ve</strong>.
+  </p>
+  <p>
+    Suena raro la primera vez. Pensalo así: son como los dos bordes de un carril. Si estás en el
+    medio, no tocás ninguno. Si tocás el de la izquierda, es porque te fuiste para la izquierda.
+  </p>
+
+  <div class="bloque b-pensar">
+    <div class="bloque-titulo">🤔 Discutan esto antes de seguir (5 minutos, en grupo)</div>
+    <p style="margin-bottom:0">
+      Si el <strong>sensor izquierdo</strong> es el que está tocando la línea negra…
+      <strong>¿hacia qué lado se corrió el auto?</strong> ¿Y para volver al centro, qué rueda
+      conviene frenar? Poné las manos sobre la mesa como si fueran las ruedas y actuenlo.
+      Casi todos se equivocan la primera vez, y está bien: <em>equivocarse acá</em> es mucho más
+      barato que equivocarse en la pista.
+    </p>
+  </div>
+
+  <h2>✏️ La tabla de verdad</h2>
+  <p>
+    Dos sensores, cada uno con dos estados posibles → <strong>2 × 2 = 4 casos</strong>. Nada más.
+    Todo el comportamiento del auto cabe en cuatro renglones.
+  </p>
+  <p class="chico">Convención: <strong>0 = ve blanco</strong> (no hay línea) · <strong>1 = ve negro</strong> (hay línea).</p>
+
+  <div>
+    <div class="tabla-envase">
+      <table>
+        <thead>
+          <tr><th>Caso</th><th>Sensor IZQ</th><th>Sensor DER</th><th>¿Qué está pasando?</th><th>¿Qué hago?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>A</strong></td>
+            <td><span class="cuadro-sensor cs-blanco">0</span></td>
+            <td><span class="cuadro-sensor cs-blanco">0</span></td>
+            <td>La línea pasa justo por el medio</td>
+            <td>
+              <select class="tv-select" data-ok="adelante" aria-label="Acción para el caso A">
+                <option value="">Elegí…</option>
+                <option value="adelante">Ir derecho</option>
+                <option value="izquierda">Doblar a la izquierda</option>
+                <option value="derecha">Doblar a la derecha</option>
+                <option value="frenar">Frenar</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>B</strong></td>
+            <td><span class="cuadro-sensor cs-negro">1</span></td>
+            <td><span class="cuadro-sensor cs-blanco">0</span></td>
+            <td>El de la izquierda pisó la línea</td>
+            <td>
+              <select class="tv-select" data-ok="izquierda" aria-label="Acción para el caso B">
+                <option value="">Elegí…</option>
+                <option value="adelante">Ir derecho</option>
+                <option value="izquierda">Doblar a la izquierda</option>
+                <option value="derecha">Doblar a la derecha</option>
+                <option value="frenar">Frenar</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>C</strong></td>
+            <td><span class="cuadro-sensor cs-blanco">0</span></td>
+            <td><span class="cuadro-sensor cs-negro">1</span></td>
+            <td>El de la derecha pisó la línea</td>
+            <td>
+              <select class="tv-select" data-ok="derecha" aria-label="Acción para el caso C">
+                <option value="">Elegí…</option>
+                <option value="adelante">Ir derecho</option>
+                <option value="izquierda">Doblar a la izquierda</option>
+                <option value="derecha">Doblar a la derecha</option>
+                <option value="frenar">Frenar</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>D</strong></td>
+            <td><span class="cuadro-sensor cs-negro">1</span></td>
+            <td><span class="cuadro-sensor cs-negro">1</span></td>
+            <td>Los dos ven negro: cruce, llegada o línea muy ancha</td>
+            <td>
+              <select class="tv-select" data-ok="frenar" aria-label="Acción para el caso D">
+                <option value="">Elegí…</option>
+                <option value="adelante">Ir derecho</option>
+                <option value="izquierda">Doblar a la izquierda</option>
+                <option value="derecha">Doblar a la derecha</option>
+                <option value="frenar">Frenar</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bloque b-ok" data-tv-aviso style="display:none">
+      <div class="bloque-titulo">🎉 ¡Completaste la tabla!</div>
+      <p style="margin-bottom:0">
+        Eso que acabás de escribir <strong>es el programa</strong>. Lo que sigue es solo traducirlo
+        a palabras que el Arduino entienda. La parte difícil ya está hecha.
+      </p>
+    </div>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🔄 La regla de oro (la que cuesta)</div>
+    <p style="margin-bottom:0">
+      <strong>Frenás la rueda del lado que ve la línea.</strong><br>
+      Sensor izquierdo ve negro → freno la rueda izquierda → el auto pivota hacia la izquierda →
+      la línea vuelve al centro. Parece al revés, pero probalo con el simulador de acá abajo y se
+      te va a acomodar la cabeza.
+    </p>
+  </div>
+
+  <h2>🎮 Probalo antes de armarlo</h2>
+  <p>
+    Tocá cada sensor para cambiar lo que ve y mirá qué decide el auto. La línea de código que se
+    ilumina es la que se está ejecutando en ese momento.
+  </p>
+
+  <div class="simulador" id="sim-logica"></div>
+
+  <div class="bloque b-pensar">
+    <div class="bloque-titulo">🤔 Jugá con el simulador buscando esto</div>
+    <ul style="margin-bottom:0">
+      <li>Poné los dos en blanco y después uno en negro. ¿Qué rueda se frenó?</li>
+      <li>¿Podés hacer que el auto vaya para atrás? (No. ¿Por qué no está ese caso en la tabla?)</li>
+      <li>¿Qué pasaría si en el caso D, en vez de frenar, el auto siguiera derecho? ¿Cuándo sería
+        mejor eso? Guardá la respuesta para el desafío 4.</li>
+    </ul>
+  </div>
+
+  <h2>💻 El código completo</h2>
+  <p>
+    Acá está todo junto: los pines del L298N de la parada 2, los sensores de la parada 3, y la tabla
+    de verdad que acabás de completar. <strong>Fijate que las cuatro ramas del <code>if</code> son
+    exactamente los cuatro casos de la tabla.</strong>
+  </p>
+
+  <div class="caja-codigo">
+    <div class="codigo-cab">
+      <span class="codigo-nombre">04_seguidor_linea.ino</span>
+      <a class="btn-bajar" href="codigo/04_seguidor_linea.ino" download>⬇ .ino</a>
+      <button class="btn-copiar" type="button">📋 Copiar</button>
+    </div>
+    <pre><code>// ============================================================
+//  SEGUIDOR DE LINEA - version basica con 2 sensores
+//  Taller de Robotica
+// ============================================================
+
+// ---------- Motores (puente H L298N) ----------
+const int ENA = 5, IN1 = 6, IN2 = 7;    // motor izquierdo
+const int IN3 = 8, IN4 = 9, ENB = 10;   // motor derecho
+
+// ---------- Sensores infrarrojos ----------
+const int SENSOR_IZQ = 2;
+const int SENSOR_DER = 3;
+
+// Cambia esto a LOW si TU sensor da 0 sobre el negro
+// (lo descubriste en el desafio 1 de la parada 3)
+const int VE_LINEA = HIGH;
+
+// ---------- Velocidades: aca se ajusta todo ----------
+const int VEL_NORMAL = 150;   // cuando va derecho
+const int VEL_GIRO   = 170;   // la rueda de afuera al corregir
+const int VEL_FRENO  = 0;     // la rueda de adentro al corregir
+
+void setup() {
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT); pinMode(ENB, OUTPUT);
+
+  pinMode(SENSOR_IZQ, INPUT);
+  pinMode(SENSOR_DER, INPUT);
+
+  Serial.begin(9600);
+
+  // 2 segundos para sacar la mano antes de que arranque
+  frenar();
+  delay(2000);
+}
+
+void loop() {
+  // ---------- 1. SENSAR ----------
+  bool izq = (digitalRead(SENSOR_IZQ) == VE_LINEA);
+  bool der = (digitalRead(SENSOR_DER) == VE_LINEA);
+
+  // ---------- 2. PENSAR y 3. ACTUAR ----------
+  if (!izq && !der) {
+    // Caso A: la linea esta en el medio
+    adelante();
+
+  } else if (izq && !der) {
+    // Caso B: me fui a la derecha -> vuelvo a la izquierda
+    corregirIzquierda();
+
+  } else if (!izq && der) {
+    // Caso C: me fui a la izquierda -> vuelvo a la derecha
+    corregirDerecha();
+
+  } else {
+    // Caso D: los dos ven negro -> cruce o llegada
+    frenar();
+  }
+}
+
+// ============================================================
+//  Los movimientos
+// ============================================================
+
+void adelante() {
+  motorIzquierdo(VEL_NORMAL);
+  motorDerecho(VEL_NORMAL);
+}
+
+void corregirIzquierda() {
+  motorIzquierdo(VEL_FRENO);   // freno la de adentro
+  motorDerecho(VEL_GIRO);      // acelero la de afuera
+}
+
+void corregirDerecha() {
+  motorIzquierdo(VEL_GIRO);
+  motorDerecho(VEL_FRENO);
+}
+
+void frenar() {
+  motorIzquierdo(0);
+  motorDerecho(0);
+}
+
+// ============================================================
+//  Control de cada motor por separado.
+//  Velocidad positiva = adelante. Negativa = atras.
+// ============================================================
+
+void motorIzquierdo(int velocidad) {
+  if (velocidad &gt;= 0) {
+    digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  } else {
+    digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+    velocidad = -velocidad;
+  }
+  analogWrite(ENA, constrain(velocidad, 0, 255));
+}
+
+void motorDerecho(int velocidad) {
+  if (velocidad &gt;= 0) {
+    digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  } else {
+    digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
+    velocidad = -velocidad;
+  }
+  analogWrite(ENB, constrain(velocidad, 0, 255));
+}</code></pre>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🧩 Dos cosas del código que vale la pena mirar</div>
+    <ul style="margin-bottom:0">
+      <li><code>motorIzquierdo(-120)</code> hace que esa rueda vaya <strong>para atrás</strong>. Todavía
+        no lo usamos, pero está listo para el desafío 3 y para la parada 7.</li>
+      <li>Toda la personalidad del auto está en tres números: <code>VEL_NORMAL</code>,
+        <code>VEL_GIRO</code> y <code>VEL_FRENO</code>. <strong>No vas a tocar la lógica nunca más</strong>:
+        de acá en adelante, ajustar el auto es ajustar esos tres números.</li>
+    </ul>
+  </div>
+
+  <h2>🚀 Desafíos</h2>
+
+  <div class="desafio" data-desafio="1">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 1 · La tabla en papel, en equipo</label>
+      <span class="nivel n-facil">Fácil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Sin mirar la tabla de arriba (tapala): cada grupo dibuja los cuatro casos en una hoja grande,
+        <strong>con un dibujito del auto y la línea en cada uno</strong>, y escribe qué hace.
+      </p>
+      <p style="margin-bottom:0">
+        Después, cada grupo pasa a explicar <em>un</em> caso al resto. Si hay desacuerdo entre grupos,
+        mejor todavía: eso se resuelve con el simulador de arriba.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="2">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 2 · Escribí vos el <code>if</code></label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Ahora sí, la computadora. Partiendo de <code>02b_funciones_de_movimiento.ino</code>
+        (el de la parada 2), <strong>escribí vos el <code>loop()</code></strong> con los cuatro casos.
+        No copies el de arriba todavía: intentalo, comparalo después.
+      </p>
+      <p style="margin-bottom:0">Solo cuando lo hayas intentado, mirá el código completo y compará.
+        ¿Hiciste algo distinto? ¿Tu versión es peor, igual o mejor?</p>
+      <details class="pista-ayuda">
+        <summary>El esqueleto, si te trabaste</summary>
+        <div class="caja-codigo" style="margin:.5rem 0 0">
+          <div class="codigo-cab"><span class="codigo-nombre">completá los ...</span></div>
+          <pre><code>void loop() {
+  bool izq = (digitalRead(SENSOR_IZQ) == VE_LINEA);
+  bool der = (digitalRead(SENSOR_DER) == VE_LINEA);
+
+  if (...) {
+    ...
+  } else if (...) {
+    ...
+  } else if (...) {
+    ...
+  } else {
+    ...
+  }
+}</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="3">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 3 · La prueba de la hoja</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Antes de soltarlo en la pista: <strong>levantá el auto</strong>, agarrá una hoja con una tira
+        de cinta negra y movela debajo de los sensores. Las ruedas tienen que reaccionar de la forma
+        correcta a cada movimiento.
+      </p>
+      <p>
+        Esta prueba te ahorra media hora de perseguir el auto por el aula. Si acá las ruedas hacen
+        lo contrario de lo que esperás, tenés uno de estos tres problemas — y ahora podés distinguirlos:
+      </p>
+      <ol style="margin-bottom:0">
+        <li>Los cables de un motor están al revés (una rueda gira al revés).</li>
+        <li>Los sensores están cruzados (el del pin 2 es en realidad el derecho).</li>
+        <li>Tu <code>VE_LINEA</code> está al revés (probá cambiar <code>HIGH</code> por <code>LOW</code>).</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="4">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 4 · Rediseñá el caso D</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Frenar cuando los dos sensores ven negro es una decisión, no una verdad. Probá estas tres
+        alternativas <strong>en la pista real</strong> y decidí cuál te conviene:
+      </p>
+      <ol>
+        <li><strong>Frenar</strong> (lo que está ahora). Bueno si querés detectar la línea de llegada.</li>
+        <li><strong>Seguir derecho.</strong> Bueno si tu pista tiene cruces: el auto los atraviesa
+          sin pensar.</li>
+        <li><strong>Seguir haciendo lo último que hacía.</strong> El más astuto de los tres. Necesitás
+          guardar la última acción en una variable que sobreviva entre vueltas del <code>loop()</code>.</li>
+      </ol>
+      <details class="pista-ayuda">
+        <summary>Cómo se recuerda algo entre vueltas del loop</summary>
+        <p>
+          Una variable declarada <em>afuera</em> de <code>loop()</code> conserva su valor de una
+          vuelta a la otra. Es la memoria del robot.
+        </p>
+        <div class="caja-codigo" style="margin:.5rem 0 0">
+          <div class="codigo-cab"><span class="codigo-nombre">idea</span></div>
+          <pre><code>// afuera del loop, arriba de todo:
+int ultimaAccion = 0;   // 0 = derecho, 1 = izquierda, 2 = derecha
+
+// dentro del loop, en cada caso, antes de actuar:
+ultimaAccion = 1;
+
+// y en el caso D:
+if (ultimaAccion == 1)      corregirIzquierda();
+else if (ultimaAccion == 2) corregirDerecha();
+else                        adelante();</code></pre>
+        </div>
+        <p style="margin:.6rem 0 0" class="chico">
+          Esta misma idea, aplicada a "me quedé sin línea", es lo que hace que un auto de competencia
+          recupere la pista después de salirse. Lo vemos en la parada 7.
+        </p>
+      </details>
+    </div>
+  </div>
+
+  <h2>✅ ¿Entendiste?</h2>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">1.</span>
+      El auto va derecho por la línea, todo bien. ¿Qué están viendo los sensores?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Los dos ven negro</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Los dos ven blanco</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> El izquierdo negro, el derecho blanco</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Depende de la velocidad</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Los sensores van a los costados de la línea, no encima. Si el auto está centrado, la línea pasa entre los dos y ninguno la toca. Los sensores son la alarma que avisa cuando te desviaste."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">2.</span>
+      El sensor <strong>derecho</strong> ve negro. ¿Qué está pasando y qué hay que hacer?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Se fue a la derecha, hay que doblar a la izquierda</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Se fue a la izquierda, hay que doblar a la derecha</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> Está centrado, seguir derecho</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Llegó a la meta, frenar</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Si el sensor derecho pisó la línea, es porque el auto se corrió hacia la izquierda y la línea le quedó del lado derecho. Para volver al centro tiene que doblar a la derecha: frenar la rueda derecha."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">3.</span>
+      ¿Por qué el <code>loop()</code> no tiene ningún <code>delay()</code> adentro?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Porque los delay están prohibidos en Arduino</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Porque durante el delay el auto estaría ciego y se saldría</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> Porque gasta batería</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Porque los sensores no funcionan con delay</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Un delay(100) significa 100 milisegundos sin mirar la línea. A 50 cm/s eso son 5 centímetros a ciegas: suficiente para salirse en una curva. El loop tiene que dar vueltas lo más rápido posible."></div>
+  </div>
+
+  <div class="bloque b-ok">
+    <div class="bloque-titulo">🎒 Lo que te llevás de esta parada</div>
+    <ul style="margin-bottom:0">
+      <li>Los sensores van a los lados de la línea, no encima.</li>
+      <li>Cuatro casos, cuatro acciones. Toda la lógica cabe en una tabla.</li>
+      <li>Frenás la rueda del lado que ve la línea.</li>
+      <li>Nada de <code>delay()</code> en el <code>loop()</code>: el auto no puede quedarse ciego.</li>
+      <li>Ya tenés el programa. Ahora hay que construir el auto de verdad. → Parada 5.</li>
+    </ul>
+  </div>
+
+  <div class="nav-paradas" id="nav-paradas"></div>
+</main>
+
+<footer class="pie">
+  <p>Taller de Robótica · Seguidor de línea con Arduino</p>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+<script src="assets/js/simulador-logica.js"></script>
+</body>
+</html>

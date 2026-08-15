@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seguidor de Línea — Taller de Robótica</title>
+<meta name="description" content="Taller para construir un auto seguidor de línea con Arduino Uno, motores DC, puente H L298N y sensores infrarrojos. Componente por componente, con desafíos.">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body data-parada="0">
+
+<header class="barra">
+  <div class="barra-int">
+    <a class="marca" href="index.html"><span class="marca-icono">🤖</span> Seguidor de Línea</a>
+    <div class="barra-sep"></div>
+    <button class="btn-icono" id="btn-tema" type="button" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <div class="progreso-barra"><div class="progreso-relleno"></div></div>
+</header>
+
+<section class="portada">
+  <h1>Construí tu <span class="gradiente">auto seguidor de línea</span></h1>
+  <p class="bajada">
+    Un taller para armarlo de cero con Arduino. No copiamos un circuito terminado:
+    vamos parte por parte, entendemos cada componente y le ganamos con desafíos.
+  </p>
+  <div class="fichas" style="justify-content:center">
+    <span class="ficha">Arduino Uno</span>
+    <span class="ficha">Motores DC</span>
+    <span class="ficha">Puente H L298N</span>
+    <span class="ficha">Sensores IR</span>
+  </div>
+  <a class="btn btn-primario" href="#ruta">Ver la ruta ↓</a>
+</section>
+
+<main class="envoltorio">
+
+  <h2 id="que-es">¿Qué vamos a construir?</h2>
+  <p>
+    Un auto que recorre solo un circuito dibujado en el piso con cinta negra. Nadie lo maneja:
+    <strong>mira, decide y se mueve</strong>, cientos de veces por segundo. Así se ve terminado:
+  </p>
+
+  <div class="video-caja">
+    <iframe src="https://www.youtube-nocookie.com/embed/NZt_MXZc_aQ"
+            title="Auto seguidor de línea con Arduino"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen loading="lazy"></iframe>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🔁 Todo robot hace siempre lo mismo</div>
+    <p style="margin:0">
+      <strong>Sensar → Pensar → Actuar</strong>, y volver a empezar. Nuestro auto sensa con los
+      infrarrojos, piensa con el Arduino y actúa con los motores. Cambiá los sensores por una cámara
+      y tenés un auto autónomo de verdad: la idea es exactamente la misma.
+    </p>
+  </div>
+
+  <h2 id="ruta">La ruta: 7 paradas</h2>
+  <p>
+    Cada parada suma una pieza y termina con desafíos para probarla. <strong>No hace falta ir en
+    orden estricto</strong>, pero cada una usa lo de la anterior, así que conviene. Los tildes se
+    guardan solos en esta computadora.
+  </p>
+  <p class="chico">Tu progreso: <strong data-progreso-texto>0 de 0 desafíos</strong></p>
+
+  <div class="mapa">
+    <a class="parada-tarjeta pt-motor" href="01-motores.html" data-parada-id="1">
+      <span class="pt-tilde">✓</span>
+      <div class="pt-num">Parada 1</div>
+      <div class="pt-titulo">⚙️ El motor DC</div>
+      <p class="pt-desc">Cómo se mueve un motor y por qué el Arduino solo no puede con él.</p>
+      <div class="pt-pie"><span data-cuenta>0/4 desafíos</span><span>Sin código todavía</span></div>
+    </a>
+
+    <a class="parada-tarjeta pt-puente" href="02-puente-h.html" data-parada-id="2">
+      <span class="pt-tilde">✓</span>
+      <div class="pt-num">Parada 2</div>
+      <div class="pt-titulo">🔀 El puente H (L298N)</div>
+      <p class="pt-desc">El músculo del auto. Adelante, atrás, girar y controlar la velocidad.</p>
+      <div class="pt-pie"><span data-cuenta>0/5 desafíos</span><span>Primer código</span></div>
+    </a>
+
+    <a class="parada-tarjeta pt-sensor" href="03-sensores.html" data-parada-id="3">
+      <span class="pt-tilde">✓</span>
+      <div class="pt-num">Parada 3</div>
+      <div class="pt-titulo">👁️ Los sensores IR</div>
+      <p class="pt-desc">Los ojos del auto: cómo distinguen el negro del blanco y cómo calibrarlos.</p>
+      <div class="pt-pie"><span data-cuenta>0/4 desafíos</span><span>Monitor Serie</span></div>
+    </a>
+
+    <a class="parada-tarjeta pt-logica" href="04-logica.html" data-parada-id="4">
+      <span class="pt-tilde">✓</span>
+      <div class="pt-num">Parada 4</div>
+      <div class="pt-titulo">🧠 La lógica</div>
+      <p class="pt-desc">El cerebro. La tabla de verdad y el primer código que junta todo.</p>
+      <div class="pt-pie"><span data-cuenta>0/4 desafíos</span><span>⭐ La parada clave</span></div>
+    </a>
+
+    <a class="parada-tarjeta pt-armado" href="05-armado.html" data-parada-id="5">
+      <span class="pt-tilde">✓</span>
+      <div class="pt-num">Parada 5</div>
+      <div class="pt-titulo">🔧 El armado</div>
+      <p class="pt-desc">Montar el chasis, ubicar los sensores y ordenar el cableado.</p>
+      <div class="pt-pie"><span data-cuenta>0/3 desafíos</span><span>Manos a la obra</span></div>
+    </a>
+
+    <a class="parada-tarjeta pt-pista" href="06-pista.html" data-parada-id="6">
+      <span class="pt-tilde">✓</span>
+      <div class="pt-num">Parada 6</div>
+      <div class="pt-titulo">🏎️ A la pista</div>
+      <p class="pt-desc">Calibrar, ajustar la velocidad y sobrevivir a las curvas.</p>
+      <div class="pt-pie"><span data-cuenta>0/4 desafíos</span><span>Simulador de pista</span></div>
+    </a>
+
+    <a class="parada-tarjeta pt-experto" href="07-nivel-experto.html" data-parada-id="7">
+      <span class="pt-tilde">✓</span>
+      <div class="pt-num">Parada 7</div>
+      <div class="pt-titulo">🚀 Nivel experto</div>
+      <p class="pt-desc">4 sensores, control proporcional y trucos de competencia.</p>
+      <div class="pt-pie"><span data-cuenta>0/4 desafíos</span><span>Opcional</span></div>
+    </a>
+
+    <div class="parada-tarjeta" style="cursor:default">
+      <div class="pt-num">Cuando termines</div>
+      <div class="pt-titulo">🏆 La carrera</div>
+      <p class="pt-desc">Todos los autos a la misma pista, cronómetro en mano. El que menos se sale
+        gana más que el más rápido.</p>
+      <div class="pt-pie"><span>Progreso: <strong data-progreso-pct>0%</strong></span></div>
+    </div>
+  </div>
+
+  <h2 id="materiales">Lo que necesitás</h2>
+  <p>Tildá lo que ya tenés. Se guarda solo.</p>
+
+  <div class="materiales">
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Arduino Uno + cable USB
+        <span class="m-nota">El cerebro. Ya lo conocés.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">2 motores DC con caja reductora + ruedas
+        <span class="m-nota">Los amarillos típicos de 3–6&nbsp;V. Vienen de a pares con la rueda.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Módulo puente H L298N
+        <span class="m-nota">La plaquita con el disipador de aluminio.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">2 sensores infrarrojos
+        <span class="m-nota">Módulos TCRT5000 o FC-51, con potenciómetro de ajuste.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Chasis + rueda loca
+        <span class="m-nota">Acrílico, madera o cartón pluma. La rueda loca va atrás.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Batería 7,4&nbsp;V (2S LiPo) o portapilas de 6×AA
+        <span class="m-nota">⚠️ El USB de la compu NO alcanza para mover los motores.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Cables dupont macho-hembra y macho-macho
+        <span class="m-nota">Unos 20. Si podés, de varios colores.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Protoboard chica
+        <span class="m-nota">Para las pruebas de las paradas 1 y 3.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Destornillador chico plano
+        <span class="m-nota">Para las borneras del L298N y los potenciómetros.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Cinta aisladora negra + papel afiche blanco
+        <span class="m-nota">Para la pista. Ver más abajo.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Precintos o cinta doble faz
+        <span class="m-nota">Para sujetar todo y que no se desarme en la curva.</span></label>
+    </div>
+    <div class="material">
+      <input type="checkbox">
+      <label class="m-nombre">Multímetro <em>(opcional pero recomendado)</em>
+        <span class="m-nota">Para medir la batería y encontrar cables cortados.</span></label>
+    </div>
+  </div>
+
+  <h2 id="pista">Armar la pista</h2>
+  <p>
+    Antes que el auto, la pista. Es lo más barato del proyecto y lo que más determina si el auto
+    anda o no. Reglas que salieron de sufrir:
+  </p>
+
+  <div class="tabla-envase">
+    <table>
+      <thead>
+        <tr><th>Regla</th><th>Por qué</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Cinta negra mate sobre fondo blanco</strong></td>
+          <td>El infrarrojo necesita contraste. El negro brillante refleja y confunde al sensor.</td>
+        </tr>
+        <tr>
+          <td><strong>Ancho de la línea: 1,5 a 2&nbsp;cm</strong></td>
+          <td>Es el ancho de la cinta aisladora común. Más fina, los sensores la pierden.</td>
+        </tr>
+        <tr>
+          <td><strong>Curvas de radio 20&nbsp;cm o más</strong></td>
+          <td>Una curva cerrada exige mucha velocidad de corrección. Para arrancar, suave.</td>
+        </tr>
+        <tr>
+          <td><strong>Sin cruces al principio</strong></td>
+          <td>Un cruce hace que los dos sensores vean negro y el auto no sabe qué hacer (todavía).</td>
+        </tr>
+        <tr>
+          <td><strong>Piso liso y opaco</strong></td>
+          <td>El piso brillante y la luz del sol arruinan la lectura infrarroja.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="desafio" data-desafio="1">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 1 · Diseñá y armá la pista</label>
+      <span class="nivel n-facil">Fácil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        En equipo: dibujen primero el circuito en una hoja, y recién después péguenlo con cinta sobre
+        el papel afiche. Tiene que ser un <strong>circuito cerrado</strong> (que vuelva al inicio) y
+        tener al menos una recta larga y dos curvas de radio distinto.
+      </p>
+      <details class="pista-ayuda">
+        <summary>Ayuda para pegar la cinta en las curvas</summary>
+        <p>La cinta aisladora no dobla sola: en las curvas se arruga. El truco es cortar pedacitos
+        de 4–5&nbsp;cm y pegarlos superpuestos, en abanico. Queda una curva suave y sin huecos.
+        Un hueco de 1&nbsp;cm en la línea puede hacer que el auto se pierda.</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="2">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 2 · Predicción por escrito</label>
+      <span class="nivel n-facil">Fácil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Antes de tocar nada, cada uno escribe en su carpeta su respuesta a estas tres preguntas.
+        Al terminar el taller las volvemos a leer:
+      </p>
+      <ol>
+        <li>¿Cómo hace el auto para saber dónde está la línea?</li>
+        <li>Si el auto se está yendo hacia la derecha, ¿qué rueda tendría que frenar para volver?</li>
+        <li>¿Cuántas veces por segundo te parece que el auto revisa dónde está la línea?</li>
+      </ol>
+      <details class="pista-ayuda">
+        <summary>Spoiler de la pregunta 3 (no la abras todavía)</summary>
+        <p>Un Arduino Uno corriendo el código del seguidor da entre <strong>5.000 y 20.000
+        vueltas por segundo</strong> al ciclo <code>loop()</code>. Corrige el rumbo miles de veces
+        en el tiempo que vos parpadeás.</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="bloque b-peligro">
+    <div class="bloque-titulo">⚡ Cuatro reglas de seguridad (van en serio)</div>
+    <ol style="margin-bottom:0">
+      <li><strong>Conectar y desconectar siempre con la batería afuera.</strong> Cambiar cables con
+        el circuito encendido es la forma número uno de quemar un L298N.</li>
+      <li><strong>Nunca conectes un motor directo a un pin del Arduino.</strong> Se quema el pin, y a
+        veces el micro entero. En la parada 1 vas a entender por qué.</li>
+      <li><strong>Rojo es positivo, negro es negativo. Siempre.</strong> Invertir la alimentación de
+        un módulo lo mata al instante.</li>
+      <li><strong>Si algo se calienta o huele feo, desconectá.</strong> El L298N se entibia y es
+        normal; que queme al tocarlo, no.</li>
+    </ol>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">👩‍🏫 Nota para quien da la clase</div>
+    <p style="margin-bottom:0">
+      La parada 4 (la lógica) conviene hacerla <strong>en papel y en grupo antes de tocar el
+      código</strong>. Es el momento en que todos pueden participar, no solo el que programa más
+      rápido. Si les das el código armado, la mitad del grupo mira. Si les das la tabla vacía,
+      discuten los cuatro casos entre todos y después el código sale prácticamente dictado por ellos.
+    </p>
+  </div>
+
+  <p class="centrado" style="margin-top:2.5rem">
+    <button class="btn btn-suave" id="btn-reiniciar" type="button">↺ Borrar mi progreso</button>
+  </p>
+
+  <div class="nav-paradas" id="nav-paradas"></div>
+</main>
+
+<footer class="pie">
+  <p>Taller de Robótica · Seguidor de línea con Arduino</p>
+  <p class="chico">Hecho para aprender haciendo. Rompé cosas, pero con la batería desconectada.</p>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+</body>
+</html>

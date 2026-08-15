@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parada 7 · Nivel experto — Seguidor de Línea</title>
+<meta name="description" content="Cuatro sensores, posición ponderada, control proporcional y recuperación de línea perdida para el auto seguidor de línea.">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body data-parada="7" data-color="experto">
+
+<header class="barra">
+  <div class="barra-int">
+    <a class="marca" href="index.html"><span class="marca-icono">🤖</span> Seguidor de Línea</a>
+    <div class="barra-sep"></div>
+    <button class="btn-icono" id="btn-tema" type="button" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <div class="progreso-barra"><div class="progreso-relleno"></div></div>
+</header>
+
+<main class="envoltorio">
+
+  <div class="cabecera-parada">
+    <div class="migas"><a href="index.html">Ruta</a> <span>›</span> <span>Parada 7</span></div>
+    <span class="etiqueta-parada">🚀 Parada 7 · Opcional</span>
+    <h1>Nivel experto</h1>
+    <p class="bajada chico">
+      Tu auto ya da vueltas. Esta parada es para el que quiere que además las dé <em>bien</em>.
+    </p>
+    <div class="meta-parada">
+      <span>⏱️ 2h o más</span>
+      <span>🎯 4 desafíos</span>
+      <span>🧩 Necesita 4 sensores</span>
+    </div>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">🧭 Antes de entrar</div>
+    <p style="margin-bottom:0">
+      Esta parada asume que el auto de la parada 6 <strong>ya da tres vueltas seguidas sin salirse</strong>.
+      Si todavía no, volvé: no hay control proporcional que arregle un sensor mal calibrado o un
+      cable flojo. Lo de acá mejora un auto que ya anda; no salva uno que no.
+    </p>
+  </div>
+
+  <h2>🐌 El problema del auto de 2 sensores</h2>
+  <p>
+    Tu auto solo conoce cuatro estados del mundo. No sabe si se desvió <em>un poquito</em> o
+    <em>muchísimo</em>: en los dos casos hace exactamente lo mismo, corregir a fondo. Eso se llama
+    <strong>control on-off</strong> (o "bang-bang"), y por eso el auto zigzaguea aunque vaya derecho:
+    siempre está corrigiendo de más y después corrigiendo para el otro lado.
+  </p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 620 190" width="620" height="190" role="img"
+         aria-label="Comparación entre trayectoria en zigzag y trayectoria suave">
+      <g>
+        <text x="20" y="24" class="txt-svg" font-weight="700" fill="#e11d48">Con 2 sensores (on-off)</text>
+        <line x1="20" y1="70" x2="290" y2="70" stroke="#16171f" stroke-width="7"/>
+        <path d="M20 70 L50 50 L80 90 L110 48 L140 92 L170 50 L200 88 L230 52 L260 86 L290 62"
+              fill="none" stroke="#e11d48" stroke-width="2.5"/>
+        <text x="155" y="120" text-anchor="middle" class="txt-svg-chico">Siempre corrige a fondo → zigzaguea</text>
+      </g>
+      <g transform="translate(320,0)">
+        <text x="20" y="24" class="txt-svg" font-weight="700" fill="#059669">Con 4 sensores (proporcional)</text>
+        <line x1="20" y1="70" x2="270" y2="70" stroke="#16171f" stroke-width="7"/>
+        <path d="M20 70 C60 58, 90 80, 120 68 C150 60, 180 76, 210 69 C235 66, 250 71, 270 70"
+              fill="none" stroke="#059669" stroke-width="2.5"/>
+        <text x="145" y="120" text-anchor="middle" class="txt-svg-chico">Corrige poco o mucho según haga falta</text>
+      </g>
+      <text x="310" y="165" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700">
+        Misma pista, mismo auto, distinta cabeza</text>
+    </svg>
+  </div>
+
+  <h2>👀 Cuatro ojos ven mejor</h2>
+  <p>
+    Con cuatro sensores el auto ya no responde "hay línea / no hay línea", sino
+    <strong>dónde está la línea</strong>. Y con eso puede decidir <em>cuánto</em> corregir.
+  </p>
+  <p>
+    El truco es darle un <strong>peso</strong> a cada sensor según su posición. Los de los extremos
+    pesan más porque significan un desvío más grande:
+  </p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 620 170" width="620" height="170" role="img"
+         aria-label="Los cuatro sensores con sus pesos asignados">
+      <rect x="120" y="60" width="380" height="46" rx="10" fill="#3b4157"/>
+
+      <g>
+        <rect x="145" y="70" width="52" height="26" rx="5" fill="#7c3aed"/>
+        <text x="171" y="88" text-anchor="middle" class="txt-svg" font-size="12" font-weight="800" fill="#fff">S1</text>
+        <text x="171" y="128" text-anchor="middle" class="txt-svg" font-size="16" font-weight="800" fill="#e11d48">−3</text>
+        <text x="171" y="50" text-anchor="middle" class="txt-svg-chico">pin 2</text>
+      </g>
+      <g>
+        <rect x="240" y="70" width="52" height="26" rx="5" fill="#7c3aed"/>
+        <text x="266" y="88" text-anchor="middle" class="txt-svg" font-size="12" font-weight="800" fill="#fff">S2</text>
+        <text x="266" y="128" text-anchor="middle" class="txt-svg" font-size="16" font-weight="800" fill="#ea580c">−1</text>
+        <text x="266" y="50" text-anchor="middle" class="txt-svg-chico">pin 3</text>
+      </g>
+      <g>
+        <rect x="328" y="70" width="52" height="26" rx="5" fill="#7c3aed"/>
+        <text x="354" y="88" text-anchor="middle" class="txt-svg" font-size="12" font-weight="800" fill="#fff">S3</text>
+        <text x="354" y="128" text-anchor="middle" class="txt-svg" font-size="16" font-weight="800" fill="#ea580c">+1</text>
+        <text x="354" y="50" text-anchor="middle" class="txt-svg-chico">pin 4</text>
+      </g>
+      <g>
+        <rect x="423" y="70" width="52" height="26" rx="5" fill="#7c3aed"/>
+        <text x="449" y="88" text-anchor="middle" class="txt-svg" font-size="12" font-weight="800" fill="#fff">S4</text>
+        <text x="449" y="128" text-anchor="middle" class="txt-svg" font-size="16" font-weight="800" fill="#e11d48">+3</text>
+        <text x="449" y="50" text-anchor="middle" class="txt-svg-chico">pin 11</text>
+      </g>
+
+      <text x="60" y="88" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700">IZQ</text>
+      <text x="560" y="88" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700">DER</text>
+      <text x="310" y="158" text-anchor="middle" class="txt-svg-chico">
+        El signo dice de qué lado, el número dice cuán lejos</text>
+    </svg>
+  </div>
+
+  <p>
+    Ahora, el <strong>error</strong> (o sea, cuánto está desviado el auto) es el promedio de los pesos
+    de los sensores que están viendo negro:
+  </p>
+
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>Cuenta</th><th>Error</th><th>Significa</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>(−1 + 1) / 2</td><td><strong>0</strong></td><td>Perfectamente centrado</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>0</td><td>(−1) / 1</td><td><strong>−1</strong></td><td>Desviado un poquito a la derecha</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>(−3 −1) / 2</td><td><strong>−2</strong></td><td>Desviado bastante</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>0</td><td>(−3) / 1</td><td><strong>−3</strong></td><td>¡Se está por salir!</td></tr>
+        <tr><td>0</td><td>0</td><td>1</td><td>0</td><td>(+1) / 1</td><td><strong>+1</strong></td><td>Un poquito a la izquierda</td></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>1</td><td>(+3) / 1</td><td><strong>+3</strong></td><td>¡Se está por salir para el otro lado!</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>—</td><td><strong>cruce</strong></td><td>Línea de llegada o cruce</td></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>—</td><td><strong>perdido</strong></td><td>Se salió: hay que buscar la línea</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>📐 Control proporcional: la fórmula</h2>
+  <p>
+    Una sola línea de matemática, y es la idea más importante de toda la robótica de control:
+  </p>
+
+  <div class="bloque b-objetivo centrado">
+    <p style="font-size:1.3rem;font-weight:800;margin:.3rem 0">
+      corrección = <span style="color:var(--motor)">Kp</span> × <span style="color:var(--pista)">error</span>
+    </p>
+    <p class="chico" style="margin-bottom:0">
+      <span style="color:var(--pista)"><strong>error</strong></span>: cuán lejos estás de donde
+      querés estar &nbsp;·&nbsp;
+      <span style="color:var(--motor)"><strong>Kp</strong></span>: cuánto reaccionás por cada unidad
+      de error
+    </p>
+  </div>
+
+  <p>Y las velocidades salen solas:</p>
+  <ul>
+    <li><code>velocidadIzquierda = base + corrección</code></li>
+    <li><code>velocidadDerecha = base − corrección</code></li>
+  </ul>
+  <p>
+    Si el error es 0, las dos ruedas van iguales y el auto va derecho. Si el error es −3, la rueda
+    izquierda se frena mucho (incluso va en reversa) y la derecha acelera. <strong>Si el error es −1,
+    lo mismo pero suavecito.</strong> Esa es toda la diferencia con el auto de 2 sensores.
+  </p>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🎚️ Elegir Kp: el único número que importa</div>
+    <ul style="margin-bottom:0">
+      <li><strong>Kp muy chico</strong> → corrige tímido, se sale en las curvas.</li>
+      <li><strong>Kp muy grande</strong> → corrige violento, zigzaguea peor que con 2 sensores.</li>
+      <li><strong>Para empezar:</strong> <code>Kp = base / 3</code>. Con <code>base = 150</code>,
+        probá <code>Kp = 50</code>. Después movelo de a 5 y anotá.</li>
+    </ul>
+  </div>
+
+  <div class="bloque b-pensar">
+    <div class="bloque-titulo">🤔 ¿Dónde más viste esto?</div>
+    <p style="margin-bottom:0">
+      Cuando manejás una bicicleta y te desviás un poquito, corregís un poquito. Si te desviás mucho,
+      corregís mucho. Nunca das un volantazo por un desvío mínimo. <strong>Eso es control
+      proporcional, y lo venís haciendo desde que aprendiste a andar en bici.</strong> Los ascensores,
+      los drones, el aire acondicionado y el piloto automático de los aviones usan esta misma fórmula
+      (con dos términos más, la D y la I, que es el famoso PID).
+    </p>
+  </div>
+
+  <h2>🔌 Conexión de los 4 sensores</h2>
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Sensor</th><th>Posición</th><th>Pin Arduino</th><th>Peso</th></tr></thead>
+      <tbody>
+        <tr><td><code>S1</code></td><td>Extremo izquierdo</td><td><code>2</code></td><td>−3</td></tr>
+        <tr><td><code>S2</code></td><td>Izquierdo interno</td><td><code>3</code></td><td>−1</td></tr>
+        <tr><td><code>S3</code></td><td>Derecho interno</td><td><code>4</code></td><td>+1</td></tr>
+        <tr><td><code>S4</code></td><td>Extremo derecho</td><td><code>11</code></td><td>+3</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="chico">
+    Los dos internos (S2 y S3) van separados <strong>un poco menos</strong> que el ancho de la línea:
+    cuando el auto está centrado, los dos la ven. Los externos van bastante más afuera, para avisar
+    cuando el desvío ya es grande.
+  </p>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">⚡ Ahora sí necesitás la protoboard</div>
+    <p style="margin-bottom:0">
+      Cuatro sensores son cuatro VCC y cuatro GND. Llevá un cable de 5V y uno de GND del Arduino a la
+      protoboard y repartí desde ahí. Y ojo con el consumo: cuatro módulos IR encendidos consumen
+      unos 100 mA. El regulador del Arduino los banca, pero si además alimentás algo más, mejor sacá
+      los 5V del pin <code>+5V</code> del L298N.
+    </p>
+  </div>
+
+  <h2>💻 El código con 4 sensores y control proporcional</h2>
+
+  <div class="caja-codigo">
+    <div class="codigo-cab">
+      <span class="codigo-nombre">07_proporcional_4_sensores.ino</span>
+      <a class="btn-bajar" href="codigo/07_proporcional_4_sensores.ino" download>⬇ .ino</a>
+      <button class="btn-copiar" type="button">📋 Copiar</button>
+    </div>
+    <pre><code>// ============================================================
+//  SEGUIDOR DE LINEA - 4 sensores + control proporcional
+//  Nivel experto
+// ============================================================
+
+const int ENA = 5, IN1 = 6, IN2 = 7;
+const int IN3 = 8, IN4 = 9, ENB = 10;
+
+// Los 4 sensores, de izquierda a derecha
+const int S1 = 2, S2 = 3, S3 = 4, S4 = 11;
+
+const int VE_LINEA = HIGH;
+
+// ---------- AJUSTES ----------
+int   VEL_BASE = 150;    // velocidad cuando va centrado
+float Kp       = 50.0;   // cuanto corrige por cada unidad de error
+int   VEL_BUSQUEDA = 130;
+
+// Memoria: hacia donde estaba yendo la ultima vez que vio la linea
+float ultimoError = 0;
+
+void setup() {
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT); pinMode(ENB, OUTPUT);
+  pinMode(S1, INPUT); pinMode(S2, INPUT);
+  pinMode(S3, INPUT); pinMode(S4, INPUT);
+
+  Serial.begin(9600);
+  frenar();
+  delay(2000);
+}
+
+void loop() {
+  // ---------- 1. SENSAR ----------
+  int s1 = (digitalRead(S1) == VE_LINEA) ? 1 : 0;
+  int s2 = (digitalRead(S2) == VE_LINEA) ? 1 : 0;
+  int s3 = (digitalRead(S3) == VE_LINEA) ? 1 : 0;
+  int s4 = (digitalRead(S4) == VE_LINEA) ? 1 : 0;
+
+  int cuantos = s1 + s2 + s3 + s4;
+
+  // ---------- 2. PENSAR ----------
+  if (cuantos == 0) {
+    // Perdio la linea: gira hacia donde la vio por ultima vez
+    buscarLinea();
+    return;
+  }
+
+  if (cuantos == 4) {
+    // Los cuatro ven negro: cruce o linea de llegada
+    adelanteRecto();
+    return;
+  }
+
+  // Posicion ponderada de la linea
+  float error = (s1 * -3.0 + s2 * -1.0 + s3 * 1.0 + s4 * 3.0) / cuantos;
+  ultimoError = error;
+
+  float correccion = Kp * error;
+
+  // ---------- 3. ACTUAR ----------
+  int velIzq = VEL_BASE + correccion;
+  int velDer = VEL_BASE - correccion;
+
+  motorIzquierdo(constrain(velIzq, -255, 255));
+  motorDerecho(constrain(velDer, -255, 255));
+}
+
+// ============================================================
+
+void buscarLinea() {
+  // Si la vio ultima vez a la izquierda, gira a la izquierda a buscarla.
+  if (ultimoError &lt; 0) {
+    motorIzquierdo(-VEL_BUSQUEDA);
+    motorDerecho(VEL_BUSQUEDA);
+  } else {
+    motorIzquierdo(VEL_BUSQUEDA);
+    motorDerecho(-VEL_BUSQUEDA);
+  }
+}
+
+void adelanteRecto() {
+  motorIzquierdo(VEL_BASE);
+  motorDerecho(VEL_BASE);
+}
+
+void frenar() {
+  motorIzquierdo(0);
+  motorDerecho(0);
+}
+
+void motorIzquierdo(int v) {
+  if (v &gt;= 0) { digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW); }
+  else        { digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH); v = -v; }
+  analogWrite(ENA, constrain(v, 0, 255));
+}
+
+void motorDerecho(int v) {
+  if (v &gt;= 0) { digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW); }
+  else        { digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH); v = -v; }
+  analogWrite(ENB, constrain(v, 0, 255));
+}</code></pre>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🧠 Lo más lindo de este código</div>
+    <p style="margin-bottom:0">
+      No tiene <strong>ningún</strong> <code>if</code> que diga "doblar a la izquierda" o "doblar a la
+      derecha". Esas decisiones salieron de la fórmula. Pasaste de <em>enumerar casos</em> a
+      <em>calcular la respuesta</em>: por eso el mismo código andaría con 6 u 8 sensores solo
+      cambiando los pesos.
+    </p>
+  </div>
+
+  <h2>🚀 Desafíos</h2>
+
+  <div class="desafio" data-desafio="1">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 1 · Montá y verificá los 4 sensores</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Montalos, calibralos <strong>uno por uno</strong> (cada potenciómetro por separado, es lo que
+        más se saltea) y escribí un programa que muestre los cuatro por el Monitor Serie, así:
+      </p>
+      <div class="caja-codigo" style="margin:.5rem 0">
+        <div class="codigo-cab"><span class="codigo-nombre">salida esperada</span></div>
+        <pre><code>[ . # # . ]   error = 0.0
+[ . # . . ]   error = -1.0
+[ # # . . ]   error = -2.0
+[ . . . . ]   PERDIDO</code></pre>
+      </div>
+      <p style="margin-bottom:0">
+        Pasá la mano despacio de un extremo al otro y mirá el error ir de −3 a +3. Si algún sensor
+        nunca cambia, arreglalo <strong>ahora</strong>: el control proporcional con un sensor muerto
+        se comporta peor que el auto de 2 sensores.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="2">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 2 · Encontrá tu Kp</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>Método sistemático, no a ojo. Con <code>VEL_BASE = 150</code>:</p>
+      <ol>
+        <li>Empezá con <code>Kp = 20</code>. El auto va a corregir poco y salirse en las curvas.</li>
+        <li>Subí de a 10 hasta que <strong>complete una vuelta</strong>.</li>
+        <li>Seguí subiendo hasta que <strong>empiece a zigzaguear</strong> en las rectas. Anotá ese
+          valor: llamalo <code>Kp_max</code>.</li>
+        <li>Tu Kp bueno está entre el que completó la vuelta y <code>Kp_max</code>, más cerca del
+          segundo. Probá el punto medio y ajustá de a 5.</li>
+      </ol>
+      <p style="margin-bottom:0">
+        <strong>Después subí <code>VEL_BASE</code> y repetí.</strong> Vas a descubrir que Kp y
+        velocidad están atados: más rápido necesita más Kp. Anotá los pares que funcionan.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="3">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 3 · Que sobreviva a salirse</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        La función <code>buscarLinea()</code> ya está en el código: cuando el auto pierde la línea,
+        gira sobre su eje hacia el lado donde la vio por última vez. Probala:
+      </p>
+      <ol>
+        <li>Levantá el auto y sacá la línea de abajo. Tiene que empezar a girar sobre sí mismo.</li>
+        <li>Volvé a ponerle la línea. Tiene que engancharla y seguir.</li>
+        <li>En la pista: sacalo de la línea a propósito. ¿Vuelve solo?</li>
+      </ol>
+      <p style="margin-bottom:0"><strong>Mejorala.</strong> Ideas, de menor a mayor dificultad:</p>
+      <ul style="margin-bottom:0">
+        <li>Que la búsqueda arranque suave y se vaya haciendo más amplia con el tiempo (espiral).</li>
+        <li>Que si no encuentra la línea en 3 segundos, frene del todo en vez de girar para siempre.</li>
+        <li>Que prenda el LED de la placa mientras está perdido, para que vos veas qué está pensando.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="4">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 4 · Elegí tu propia aventura</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>Elegí uno (o más) y hacelo:</p>
+      <ul>
+        <li><strong>Línea de llegada.</strong> Que detecte los 4 sensores en negro y, si es la
+          <em>segunda</em> vez que lo ve, frene del todo. Cronómetro incorporado.</li>
+        <li><strong>Frenado en curva.</strong> Que baje <code>VEL_BASE</code> cuando el error es
+          grande y la suba en las rectas. Como frenar antes de la curva y acelerar a la salida.
+          Es el truco que más tiempo baja.</li>
+        <li><strong>Agregá la D.</strong> El término derivativo mira <em>cuán rápido está cambiando</em>
+          el error y frena la corrección antes de pasarse. Es lo que elimina el zigzagueo que queda:
+          <br><code>correccion = Kp*error + Kd*(error - errorAnterior);</code>
+          <br>Empezá con <code>Kd</code> igual a la mitad de <code>Kp</code>. Ahí ya estás haciendo
+          control PD de verdad.</li>
+        <li><strong>Botón de largada.</strong> Un pulsador para que el auto no arranque hasta que
+          vos quieras. Se acabó el "salió corriendo mientras lo apoyaba".</li>
+        <li><strong>Modo demo.</strong> Que muestre por el Monitor Serie el error y las dos
+          velocidades, para poder explicarle a otro grupo qué está pensando el auto.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>✅ ¿Entendiste?</h2>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">1.</span>
+      Con la fórmula proporcional, ¿qué pasa si el error es 0?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> El auto frena</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Las dos ruedas van a VEL_BASE y el auto va derecho</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> El auto gira sobre su eje</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Da error de división por cero</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="corrección = Kp × 0 = 0. Entonces velIzq = velDer = VEL_BASE. El auto va derecho sin corregir, que es exactamente lo que querés cuando está centrado."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">2.</span>
+      Tu auto con control proporcional zigzaguea mucho en las rectas. ¿Qué tocás?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Subo Kp</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Bajo Kp</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> Subo VEL_BASE</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Cambio los sensores de lugar</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Zigzaguear es corregir de más: reaccionás demasiado a un error chiquito. Kp más bajo = corrección más suave. Si al bajarlo empieza a salirse en las curvas, ahí necesitás el término D."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">3.</span>
+      ¿Por qué el código de 4 sensores no tiene un <code>if</code> por cada combinación posible?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Porque Arduino no soporta tantos if</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Porque la fórmula calcula la respuesta en vez de enumerar casos</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> Porque con 4 sensores solo hay 4 casos</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Porque los if son más lentos</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Con 4 sensores habría 16 casos, con 6 sensores 64, con 8 sensores 256. Enumerarlos no escala. La posición ponderada convierte cualquier cantidad de sensores en un solo número, y la fórmula hace el resto."></div>
+  </div>
+
+  <div class="bloque b-ok">
+    <div class="bloque-titulo">🏆 Llegaste al final</div>
+    <p>
+      Empezaste con un motor y un par de pilas, y terminaste con un robot que estima su posición y
+      calcula su corrección con una fórmula de control. Eso <strong>no es un proyecto escolar: es
+      exactamente lo que hace un dron para mantenerse quieto en el aire</strong>.
+    </p>
+    <p style="margin-bottom:0">
+      Y ahora, la parte que importa: <strong>organicen la carrera</strong>. Que cada equipo explique
+      en un minuto qué decisión tomó y por qué. Las mejores ideas del taller siempre salen de escuchar
+      cómo otro grupo resolvió lo mismo de otra forma.
+    </p>
+  </div>
+
+  <p class="centrado" style="margin-top:2rem">
+    <a class="btn btn-primario" href="index.html">🏁 Volver al mapa de la ruta</a>
+  </p>
+
+  <div class="nav-paradas" id="nav-paradas"></div>
+</main>
+
+<footer class="pie">
+  <p>Taller de Robótica · Seguidor de línea con Arduino</p>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+</body>
+</html>

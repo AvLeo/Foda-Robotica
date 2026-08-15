@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parada 2 · El puente H L298N — Seguidor de Línea</title>
+<meta name="description" content="Cómo conectar y programar el módulo L298N para mover dos motores DC: adelante, atrás, girar y controlar la velocidad con PWM.">
+<link rel="stylesheet" href="assets/css/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔀</text></svg>">
+</head>
+<body data-parada="2" data-color="puente">
+
+<header class="barra">
+  <div class="barra-int">
+    <a class="marca" href="index.html"><span class="marca-icono">🤖</span> Seguidor de Línea</a>
+    <div class="barra-sep"></div>
+    <button class="btn-icono" id="btn-tema" type="button" aria-label="Cambiar tema">🌙</button>
+  </div>
+  <div class="progreso-barra"><div class="progreso-relleno"></div></div>
+</header>
+
+<main class="envoltorio">
+
+  <div class="cabecera-parada">
+    <div class="migas"><a href="index.html">Ruta</a> <span>›</span> <span>Parada 2</span></div>
+    <span class="etiqueta-parada">🔀 Parada 2 · El músculo</span>
+    <h1>El puente H (L298N)</h1>
+    <p class="bajada chico">
+      El intermediario que faltaba. Ahora sí, el Arduino manda y los motores obedecen.
+    </p>
+    <div class="meta-parada">
+      <span>⏱️ 1h 30 – 2h</span>
+      <span>🎯 5 desafíos</span>
+      <span>💻 Primer código</span>
+    </div>
+  </div>
+
+  <div class="bloque b-objetivo">
+    <div class="bloque-titulo">🎯 Al terminar esta parada vas a poder…</div>
+    <ul style="margin-bottom:0">
+      <li>Conectar el L298N al Arduino, a la batería y a los dos motores, sin quemar nada.</li>
+      <li>Hacer que los motores vayan adelante, atrás y que el auto gire sobre su eje.</li>
+      <li>Controlar la <strong>velocidad</strong> con PWM y entender qué es realmente el PWM.</li>
+      <li>Programar una coreografía completa de movimientos.</li>
+    </ul>
+  </div>
+
+  <h2>🧠 ¿Qué es un puente H?</h2>
+  <p>
+    En la parada 1 descubriste que para invertir un motor hay que dar vuelta los cables. Un puente H
+    es un circuito con <strong>cuatro interruptores electrónicos</strong> que hacen justamente eso,
+    pero solos y miles de veces por segundo.
+  </p>
+  <p>
+    Se llama "puente H" porque, dibujado, los cuatro interruptores y el motor en el medio forman una
+    letra <strong>H</strong>. Cerrando dos interruptores en diagonal, la corriente cruza el motor en
+    un sentido. Cerrando la otra diagonal, cruza al revés.
+  </p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 620 260" width="620" height="260" role="img"
+         aria-label="Esquema de un puente H: cuatro interruptores en forma de H con el motor en el medio">
+      <!-- caso 1 -->
+      <g>
+        <text x="140" y="24" text-anchor="middle" class="txt-svg" font-weight="700">Cierro esta diagonal</text>
+        <text x="140" y="244" text-anchor="middle" class="txt-svg-chico" fill="#059669"
+              font-weight="700">→ el motor gira a la derecha</text>
+
+        <line x1="60" y1="50" x2="220" y2="50" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="60" y1="200" x2="220" y2="200" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="60" y1="50" x2="60" y2="200" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="220" y1="50" x2="220" y2="200" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="60" y1="125" x2="220" y2="125" stroke="#8a90aa" stroke-width="2"/>
+
+        <circle cx="140" cy="125" r="24" fill="#3b4157"/>
+        <text x="140" y="130" text-anchor="middle" class="txt-svg" font-size="13"
+              font-weight="800" fill="#fff">M</text>
+
+        <circle cx="60" cy="88" r="9" fill="#059669"/><text x="38" y="93" class="txt-pin" fill="#059669">ON</text>
+        <circle cx="220" cy="88" r="9" fill="none" stroke="#a9b0c8" stroke-width="2"/>
+        <circle cx="60" cy="162" r="9" fill="none" stroke="#a9b0c8" stroke-width="2"/>
+        <circle cx="220" cy="162" r="9" fill="#059669"/><text x="234" y="167" class="txt-pin" fill="#059669">ON</text>
+
+        <path d="M92 125 L120 125" stroke="#059669" stroke-width="3" marker-end="url(#fl2)"/>
+        <text x="140" y="40" text-anchor="middle" class="txt-pin" fill="#e11d48">+</text>
+        <text x="140" y="216" text-anchor="middle" class="txt-pin">−</text>
+      </g>
+
+      <line x1="310" y1="40" x2="310" y2="215" stroke="#d8dce8" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+      <!-- caso 2 -->
+      <g transform="translate(340,0)">
+        <text x="140" y="24" text-anchor="middle" class="txt-svg" font-weight="700">Cierro la otra</text>
+        <text x="140" y="244" text-anchor="middle" class="txt-svg-chico" fill="#2563eb"
+              font-weight="700">→ el motor gira a la izquierda</text>
+
+        <line x1="60" y1="50" x2="220" y2="50" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="60" y1="200" x2="220" y2="200" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="60" y1="50" x2="60" y2="200" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="220" y1="50" x2="220" y2="200" stroke="#8a90aa" stroke-width="2"/>
+        <line x1="60" y1="125" x2="220" y2="125" stroke="#8a90aa" stroke-width="2"/>
+
+        <circle cx="140" cy="125" r="24" fill="#3b4157"/>
+        <text x="140" y="130" text-anchor="middle" class="txt-svg" font-size="13"
+              font-weight="800" fill="#fff">M</text>
+
+        <circle cx="60" cy="88" r="9" fill="none" stroke="#a9b0c8" stroke-width="2"/>
+        <circle cx="220" cy="88" r="9" fill="#2563eb"/><text x="234" y="93" class="txt-pin" fill="#2563eb">ON</text>
+        <circle cx="60" cy="162" r="9" fill="#2563eb"/><text x="38" y="167" class="txt-pin" fill="#2563eb">ON</text>
+        <circle cx="220" cy="162" r="9" fill="none" stroke="#a9b0c8" stroke-width="2"/>
+
+        <path d="M188 125 L160 125" stroke="#2563eb" stroke-width="3" marker-end="url(#fl2)"/>
+        <text x="140" y="40" text-anchor="middle" class="txt-pin" fill="#e11d48">+</text>
+        <text x="140" y="216" text-anchor="middle" class="txt-pin">−</text>
+      </g>
+
+      <defs>
+        <marker id="fl2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0 0 L8 4 L0 8 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+    </svg>
+    <p class="diagrama-pie">
+      La corriente siempre baja del + al −, pero <strong>cruza el motor en sentidos opuestos</strong>
+      según qué diagonal esté cerrada. El módulo L298N trae dos puentes H adentro: uno por motor.
+    </p>
+  </div>
+
+  <div class="bloque b-peligro">
+    <div class="bloque-titulo">💥 ¿Y si cierro los dos interruptores de un mismo lado?</div>
+    <p style="margin-bottom:0">
+      Conectás el + directo al − sin nada en el medio: <strong>cortocircuito</strong>. En un puente H
+      hecho a mano eso lo quema. El L298N tiene protección interna para que no pase, pero la idea
+      está buena para entender por qué las combinaciones de pines no son todas válidas.
+    </p>
+  </div>
+
+  <h2>🔌 Los pines del módulo L298N</h2>
+
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Pin</th><th>¿Para qué sirve?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>IN1 · IN2</strong></td><td>Deciden el <em>sentido</em> del motor A. Van al Arduino.</td></tr>
+        <tr><td><strong>IN3 · IN4</strong></td><td>Lo mismo para el motor B.</td></tr>
+        <tr><td><strong>ENA · ENB</strong></td><td>Habilitan cada motor y controlan su <em>velocidad</em>. Van a pines PWM (~).</td></tr>
+        <tr><td><strong>OUT1 · OUT2</strong></td><td>Los dos cables del motor A. No importa el orden (si gira al revés, los das vuelta).</td></tr>
+        <tr><td><strong>OUT3 · OUT4</strong></td><td>Los dos cables del motor B.</td></tr>
+        <tr><td><strong>+12V</strong></td><td>El positivo de la batería. Es la energía de verdad.</td></tr>
+        <tr><td><strong>GND</strong></td><td>El negativo. Va a la batería <strong>y también al Arduino</strong>.</td></tr>
+        <tr><td><strong>+5V</strong></td><td>Salida de 5 V que genera el módulo. Sirve para alimentar los sensores.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">🟡 Los tres jumpers que confunden a todo el mundo</div>
+    <ul style="margin-bottom:0">
+      <li><strong>Jumpers de ENA y ENB:</strong> vienen puestos de fábrica. Con el jumper puesto, el
+        motor está siempre habilitado <em>a máxima velocidad</em> y no podés regularla.
+        <strong>Sacalos los dos</strong> y conectá ENA y ENB al Arduino.</li>
+      <li><strong>Jumper del regulador de 5 V</strong> (el que está al lado de las borneras de
+        alimentación): dejalo <strong>puesto</strong> si alimentás con 7,4 V o hasta 12 V. Sacalo si
+        usás más de 12 V, o el regulador se quema.</li>
+      <li>Si le sacás el jumper de 5 V, el pin +5V deja de dar tensión: pasa a ser una
+        <em>entrada</em>. No lo hagas en este proyecto.</li>
+    </ul>
+  </div>
+
+  <h2>🔌 Conexión, parte 1: los cables de órdenes</h2>
+  <p>
+    Del Arduino al L298N van 6 cables de control más la masa. <strong>Pasá el mouse por cada fila</strong>
+    de la tabla y mirá qué cable se ilumina en el dibujo.
+  </p>
+
+  <div class="diagrama" id="diag-control">
+    <svg viewBox="0 0 660 380" width="660" height="380" role="img"
+         aria-label="Diagrama de conexión entre Arduino y L298N">
+      <!-- Arduino -->
+      <g class="pieza">
+        <rect x="40" y="50" width="170" height="290" rx="10" fill="#1f7a6f" stroke="#155e56" stroke-width="2"/>
+        <rect x="58" y="70" width="134" height="60" rx="6" fill="#2a3044"/>
+        <text x="125" y="98" text-anchor="middle" class="txt-svg" font-size="13"
+              font-weight="800" fill="#9fe8dc">ARDUINO</text>
+        <text x="125" y="117" text-anchor="middle" class="txt-svg" font-size="11" fill="#9fe8dc">UNO</text>
+      </g>
+      <text x="125" y="366" text-anchor="middle" class="txt-svg-chico">Arduino Uno</text>
+
+      <!-- pines Arduino -->
+      <g>
+        <rect x="196" y="152" width="16" height="14" rx="2" fill="#0f0f18"/><text x="180" y="163" text-anchor="end" class="txt-pin" fill="#d5f3ec">~5</text>
+        <rect x="196" y="182" width="16" height="14" rx="2" fill="#0f0f18"/><text x="180" y="193" text-anchor="end" class="txt-pin" fill="#d5f3ec">6</text>
+        <rect x="196" y="212" width="16" height="14" rx="2" fill="#0f0f18"/><text x="180" y="223" text-anchor="end" class="txt-pin" fill="#d5f3ec">7</text>
+        <rect x="196" y="242" width="16" height="14" rx="2" fill="#0f0f18"/><text x="180" y="253" text-anchor="end" class="txt-pin" fill="#d5f3ec">8</text>
+        <rect x="196" y="272" width="16" height="14" rx="2" fill="#0f0f18"/><text x="180" y="283" text-anchor="end" class="txt-pin" fill="#d5f3ec">9</text>
+        <rect x="196" y="302" width="16" height="14" rx="2" fill="#0f0f18"/><text x="180" y="313" text-anchor="end" class="txt-pin" fill="#d5f3ec">~10</text>
+        <rect x="196" y="322" width="16" height="14" rx="2" fill="#0f0f18"/><text x="180" y="333" text-anchor="end" class="txt-pin" fill="#d5f3ec">GND</text>
+      </g>
+
+      <!-- L298N -->
+      <g class="pieza">
+        <rect x="450" y="50" width="170" height="290" rx="10" fill="#124d5c" stroke="#0b3743" stroke-width="2"/>
+        <rect x="500" y="66" width="90" height="70" rx="4" fill="#93a0b8"/>
+        <text x="545" y="108" text-anchor="middle" class="txt-svg" font-size="11"
+              font-weight="700" fill="#2a3044">L298N</text>
+        <rect x="470" y="152" width="12" height="184" rx="2" fill="#0f2730"/>
+      </g>
+      <text x="535" y="366" text-anchor="middle" class="txt-svg-chico">Módulo puente H</text>
+
+      <!-- pines L298N -->
+      <g>
+        <rect x="448" y="152" width="16" height="14" rx="2" fill="#0f0f18"/><text x="490" y="163" class="txt-pin" fill="#bfe9f5">ENA</text>
+        <rect x="448" y="182" width="16" height="14" rx="2" fill="#0f0f18"/><text x="490" y="193" class="txt-pin" fill="#bfe9f5">IN1</text>
+        <rect x="448" y="212" width="16" height="14" rx="2" fill="#0f0f18"/><text x="490" y="223" class="txt-pin" fill="#bfe9f5">IN2</text>
+        <rect x="448" y="242" width="16" height="14" rx="2" fill="#0f0f18"/><text x="490" y="253" class="txt-pin" fill="#bfe9f5">IN3</text>
+        <rect x="448" y="272" width="16" height="14" rx="2" fill="#0f0f18"/><text x="490" y="283" class="txt-pin" fill="#bfe9f5">IN4</text>
+        <rect x="448" y="302" width="16" height="14" rx="2" fill="#0f0f18"/><text x="490" y="313" class="txt-pin" fill="#bfe9f5">ENB</text>
+        <rect x="448" y="322" width="16" height="14" rx="2" fill="#0f0f18"/><text x="490" y="333" class="txt-pin" fill="#bfe9f5">GND</text>
+      </g>
+
+      <!-- cables -->
+      <path class="cable" data-cable="ena" d="M212 159 L448 159" stroke="#e8b33a" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="in1" d="M212 189 L448 189" stroke="#2f9e44" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="in2" d="M212 219 L448 219" stroke="#4dabf7" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="in3" d="M212 249 L448 249" stroke="#f06595" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="in4" d="M212 279 L448 279" stroke="#9775fa" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="enb" d="M212 309 L448 309" stroke="#fd7e14" stroke-width="3.5" fill="none"/>
+      <path class="cable" data-cable="gnd" d="M212 329 L448 329" stroke="#2b2f3f" stroke-width="3.5" fill="none"/>
+
+      <text x="330" y="24" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700">
+        7 cables · solo órdenes, nada de fuerza</text>
+    </svg>
+    <p class="diagrama-pie">
+      Estos cables llevan órdenes, no potencia. Por eso pueden ser finitos.
+      Los pines <code>~5</code> y <code>~10</code> tienen tilde: eso significa que saben hacer PWM.
+    </p>
+  </div>
+
+  <div class="tabla-envase">
+    <table class="tabla-cables" data-diagrama="diag-control">
+      <thead><tr><th>Color sugerido</th><th>Arduino</th><th>L298N</th><th>¿Qué hace?</th></tr></thead>
+      <tbody>
+        <tr data-cable="ena"><td><span class="punto-cable" style="background:#e8b33a"></span>Amarillo</td><td><code>pin ~5</code></td><td><code>ENA</code></td><td>Velocidad del motor izquierdo</td></tr>
+        <tr data-cable="in1"><td><span class="punto-cable" style="background:#2f9e44"></span>Verde</td><td><code>pin 6</code></td><td><code>IN1</code></td><td>Sentido del motor izquierdo</td></tr>
+        <tr data-cable="in2"><td><span class="punto-cable" style="background:#4dabf7"></span>Celeste</td><td><code>pin 7</code></td><td><code>IN2</code></td><td>Sentido del motor izquierdo</td></tr>
+        <tr data-cable="in3"><td><span class="punto-cable" style="background:#f06595"></span>Rosa</td><td><code>pin 8</code></td><td><code>IN3</code></td><td>Sentido del motor derecho</td></tr>
+        <tr data-cable="in4"><td><span class="punto-cable" style="background:#9775fa"></span>Violeta</td><td><code>pin 9</code></td><td><code>IN4</code></td><td>Sentido del motor derecho</td></tr>
+        <tr data-cable="enb"><td><span class="punto-cable" style="background:#fd7e14"></span>Naranja</td><td><code>pin ~10</code></td><td><code>ENB</code></td><td>Velocidad del motor derecho</td></tr>
+        <tr data-cable="gnd"><td><span class="punto-cable" style="background:#2b2f3f"></span>Negro</td><td><code>GND</code></td><td><code>GND</code></td><td>⭐ Masa común. Sin esto no funciona nada.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">⭐ El cable que todos se olvidan: la masa común</div>
+    <p style="margin-bottom:0">
+      El Arduino y el L298N tienen que compartir el <code>GND</code>. Si no, cuando el Arduino manda
+      "5 V", el L298N no tiene con qué comparar ese 5 V y las órdenes llegan como ruido. El auto hace
+      cosas raras, los motores tiemblan o directamente no pasa nada.
+      <strong>El 80% de los "no me anda" es este cable.</strong>
+    </p>
+  </div>
+
+  <h2>🔋 Conexión, parte 2: los cables de fuerza</h2>
+  <p>Estos sí llevan corriente de verdad. Van con la batería <strong>desconectada</strong>.</p>
+
+  <div class="diagrama" id="diag-fuerza">
+    <svg viewBox="0 0 660 350" width="660" height="350" role="img"
+         aria-label="Diagrama de alimentación del L298N y conexión de los motores">
+      <!-- motores -->
+      <g class="pieza">
+        <rect x="40" y="40" width="130" height="60" rx="8" fill="#4b5570"/>
+        <circle cx="185" cy="70" r="18" fill="#2a3044"/>
+        <text x="105" y="76" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700" fill="#fff">MOTOR IZQ</text>
+      </g>
+      <g class="pieza">
+        <rect x="40" y="150" width="130" height="60" rx="8" fill="#4b5570"/>
+        <circle cx="185" cy="180" r="18" fill="#2a3044"/>
+        <text x="105" y="186" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700" fill="#fff">MOTOR DER</text>
+      </g>
+
+      <!-- L298N -->
+      <g class="pieza">
+        <rect x="330" y="40" width="180" height="240" rx="10" fill="#124d5c" stroke="#0b3743" stroke-width="2"/>
+        <rect x="360" y="120" width="90" height="70" rx="4" fill="#93a0b8"/>
+        <text x="405" y="162" text-anchor="middle" class="txt-svg" font-size="11" font-weight="700" fill="#2a3044">L298N</text>
+      </g>
+      <text x="420" y="300" text-anchor="middle" class="txt-svg-chico">Módulo puente H</text>
+
+      <!-- bornera salidas -->
+      <rect x="322" y="52" width="16" height="14" rx="2" fill="#c9a227"/><text x="345" y="63" class="txt-pin" fill="#bfe9f5">OUT1</text>
+      <rect x="322" y="76" width="16" height="14" rx="2" fill="#c9a227"/><text x="345" y="87" class="txt-pin" fill="#bfe9f5">OUT2</text>
+      <rect x="322" y="162" width="16" height="14" rx="2" fill="#c9a227"/><text x="345" y="173" class="txt-pin" fill="#bfe9f5">OUT3</text>
+      <rect x="322" y="186" width="16" height="14" rx="2" fill="#c9a227"/><text x="345" y="197" class="txt-pin" fill="#bfe9f5">OUT4</text>
+
+      <!-- bornera alimentación -->
+      <rect x="502" y="200" width="16" height="14" rx="2" fill="#c9a227"/><text x="496" y="211" text-anchor="end" class="txt-pin" fill="#bfe9f5">+12V</text>
+      <rect x="502" y="228" width="16" height="14" rx="2" fill="#c9a227"/><text x="496" y="239" text-anchor="end" class="txt-pin" fill="#bfe9f5">GND</text>
+      <rect x="502" y="256" width="16" height="14" rx="2" fill="#c9a227"/><text x="496" y="267" text-anchor="end" class="txt-pin" fill="#bfe9f5">+5V</text>
+
+      <!-- batería -->
+      <g class="pieza">
+        <rect x="560" y="60" width="80" height="110" rx="8" fill="none" stroke="#8a90aa" stroke-width="2"/>
+        <rect x="572" y="76" width="56" height="18" rx="3" fill="#8a90aa" opacity=".45"/>
+        <rect x="572" y="100" width="56" height="18" rx="3" fill="#8a90aa" opacity=".45"/>
+        <rect x="572" y="124" width="56" height="18" rx="3" fill="#8a90aa" opacity=".45"/>
+        <text x="600" y="188" text-anchor="middle" class="txt-svg-chico" font-weight="700">Batería</text>
+        <text x="600" y="202" text-anchor="middle" class="txt-svg-chico">7,4 V</text>
+      </g>
+
+      <!-- cables motores -->
+      <path class="cable" data-cable="m-izq-a" d="M170 55 L250 55 L250 59 L322 59" stroke="#e11d48" stroke-width="4" fill="none"/>
+      <path class="cable" data-cable="m-izq-b" d="M170 85 L268 85 L268 83 L322 83" stroke="#2b2f3f" stroke-width="4" fill="none"/>
+      <path class="cable" data-cable="m-der-a" d="M170 165 L250 165 L250 169 L322 169" stroke="#e11d48" stroke-width="4" fill="none"/>
+      <path class="cable" data-cable="m-der-b" d="M170 195 L268 195 L268 193 L322 193" stroke="#2b2f3f" stroke-width="4" fill="none"/>
+
+      <!-- cables batería -->
+      <path class="cable" data-cable="bat-mas" d="M600 170 L600 207 L518 207" stroke="#e11d48" stroke-width="4.5" fill="none"/>
+      <path class="cable" data-cable="bat-menos" d="M622 170 L622 235 L518 235" stroke="#2b2f3f" stroke-width="4.5" fill="none"/>
+
+      <text x="240" y="26" text-anchor="middle" class="txt-svg" font-size="12" font-weight="700">
+        Cables gruesos: acá pasa la corriente</text>
+      <text x="420" y="330" text-anchor="middle" class="txt-svg-chico">
+        Recordá: el GND del L298N también va al GND del Arduino (diagrama anterior)</text>
+    </svg>
+  </div>
+
+  <div class="tabla-envase">
+    <table class="tabla-cables" data-diagrama="diag-fuerza">
+      <thead><tr><th>Desde</th><th>Hasta</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr data-cable="m-izq-a"><td>Motor izquierdo, cable 1</td><td><code>OUT1</code></td><td>Si gira al revés, lo cambiás con OUT2</td></tr>
+        <tr data-cable="m-izq-b"><td>Motor izquierdo, cable 2</td><td><code>OUT2</code></td><td>—</td></tr>
+        <tr data-cable="m-der-a"><td>Motor derecho, cable 1</td><td><code>OUT3</code></td><td>Idem con OUT4</td></tr>
+        <tr data-cable="m-der-b"><td>Motor derecho, cable 2</td><td><code>OUT4</code></td><td>—</td></tr>
+        <tr data-cable="bat-mas"><td>Batería <strong>+</strong> (rojo)</td><td><code>+12V</code></td><td>⚠️ Nunca al revés</td></tr>
+        <tr data-cable="bat-menos"><td>Batería <strong>−</strong> (negro)</td><td><code>GND</code></td><td>Comparte bornera con el GND del Arduino</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bloque b-dato">
+    <div class="bloque-titulo">🔌 ¿Y el Arduino de dónde se alimenta?</div>
+    <p><strong>Mientras programás:</strong> dejalo enchufado al USB de la compu. La batería solo
+      alimenta el L298N. El cable de masa común hace que se entiendan. Es lo más seguro para probar.</p>
+    <p style="margin-bottom:0"><strong>Cuando el auto anda solo:</strong> llevá un cable del
+      <code>+12V</code> del L298N al pin <code>Vin</code> del Arduino, y ya tenés el <code>GND</code>
+      compartido. Con la batería de 7,4 V alcanza. Desenchufá el USB antes.</p>
+  </div>
+
+  <h2>💻 El código: la tabla de verdad del L298N</h2>
+  <p>
+    IN1 e IN2 son como dos interruptores que deciden el sentido del motor A. Las cuatro combinaciones:
+  </p>
+
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>IN1</th><th>IN2</th><th>El motor…</th></tr></thead>
+      <tbody>
+        <tr><td><code>LOW</code></td><td><code>LOW</code></td><td>queda suelto (gira libre hasta frenarse solo)</td></tr>
+        <tr><td><code>HIGH</code></td><td><code>LOW</code></td><td>gira en un sentido ➡️</td></tr>
+        <tr><td><code>LOW</code></td><td><code>HIGH</code></td><td>gira en el otro ⬅️</td></tr>
+        <tr><td><code>HIGH</code></td><td><code>HIGH</code></td><td>frena en seco 🛑</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="chico">Y por encima de todo eso, <code>analogWrite(ENA, 0..255)</code> decide con cuánta
+    ganas lo hace.</p>
+
+  <h3>Primer programa: que se muevan</h3>
+
+  <div class="caja-codigo">
+    <div class="codigo-cab">
+      <span class="codigo-nombre">02a_primer_movimiento.ino</span>
+      <a class="btn-bajar" href="codigo/02a_primer_movimiento.ino" download>⬇ .ino</a>
+      <button class="btn-copiar" type="button">📋 Copiar</button>
+    </div>
+    <pre><code>// ============================================
+//  Parada 2 - Primer movimiento
+//  Los dos motores para adelante, y frenan.
+// ============================================
+
+// Motor izquierdo (canal A del L298N)
+const int ENA = 5;   // velocidad (tiene que ser un pin ~)
+const int IN1 = 6;   // sentido
+const int IN2 = 7;   // sentido
+
+// Motor derecho (canal B del L298N)
+const int IN3 = 8;
+const int IN4 = 9;
+const int ENB = 10;  // velocidad (pin ~)
+
+void setup() {
+  // Los 6 pines son salidas: el Arduino manda, no escucha.
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENB, OUTPUT);
+}
+
+void loop() {
+  // --- Los dos motores para adelante ---
+  digitalWrite(IN1, HIGH);   // motor izquierdo: sentido 1
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);   // motor derecho: sentido 1
+  digitalWrite(IN4, LOW);
+
+  analogWrite(ENA, 180);     // velocidad: de 0 a 255
+  analogWrite(ENB, 180);
+
+  delay(2000);               // andar 2 segundos
+
+  // --- Frenar ---
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+
+  delay(2000);               // quieto 2 segundos
+}</code></pre>
+  </div>
+
+  <div class="bloque b-ojo">
+    <div class="bloque-titulo">⚠️ Antes de dar play</div>
+    <p style="margin-bottom:0">
+      <strong>Levantá el auto o poné el chasis sobre un libro</strong>, con las ruedas al aire. Si no,
+      se te escapa de la mesa en el primer intento. (Va a pasar igual, pero al menos que no sea la primera vez.)
+    </p>
+  </div>
+
+  <h3>Segundo programa: ordenar el código con funciones</h3>
+  <p>
+    Escribir 6 <code>digitalWrite</code> cada vez que querés moverte es un bardo. Metamos cada
+    movimiento en su propia función: el <code>loop()</code> queda que se lee como un cuento.
+    <strong>Este archivo lo vas a reusar en todas las paradas siguientes</strong>, así que guardalo bien.
+  </p>
+
+  <div class="caja-codigo">
+    <div class="codigo-cab">
+      <span class="codigo-nombre">02b_funciones_de_movimiento.ino</span>
+      <a class="btn-bajar" href="codigo/02b_funciones_de_movimiento.ino" download>⬇ .ino</a>
+      <button class="btn-copiar" type="button">📋 Copiar</button>
+    </div>
+    <pre><code>// ============================================
+//  Parada 2 - Funciones de movimiento
+//  Guardá este archivo: lo vamos a usar siempre.
+// ============================================
+
+const int ENA = 5, IN1 = 6, IN2 = 7;    // motor izquierdo
+const int IN3 = 8, IN4 = 9, ENB = 10;   // motor derecho
+
+int velocidad = 170;   // de 0 a 255. Probá cambiarlo.
+
+void setup() {
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT); pinMode(ENB, OUTPUT);
+  frenar();
+}
+
+void loop() {
+  adelante();          delay(1500);
+  frenar();            delay(500);
+  atras();             delay(1500);
+  frenar();            delay(500);
+  girarDerecha();      delay(800);
+  frenar();            delay(500);
+  girarIzquierda();    delay(800);
+  frenar();            delay(2000);
+}
+
+// ---------- Las funciones ----------
+
+void adelante() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  analogWrite(ENA, velocidad);
+  analogWrite(ENB, velocidad);
+}
+
+void atras() {
+  digitalWrite(IN1, LOW); digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW); digitalWrite(IN4, HIGH);
+  analogWrite(ENA, velocidad);
+  analogWrite(ENB, velocidad);
+}
+
+// Gira sobre su propio eje: una rueda adelante, la otra atras.
+void girarDerecha() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);   // izquierda adelante
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);  // derecha atras
+  analogWrite(ENA, velocidad);
+  analogWrite(ENB, velocidad);
+}
+
+void girarIzquierda() {
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  analogWrite(ENA, velocidad);
+  analogWrite(ENB, velocidad);
+}
+
+void frenar() {
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+}</code></pre>
+  </div>
+
+  <h2>⚡ ¿Qué es realmente el PWM?</h2>
+  <p>
+    El Arduino <strong>no sabe dar 3 voltios</strong>. Solo sabe dar 5 V o 0 V. Entonces hace trampa:
+    prende y apaga el pin miles de veces por segundo. Si está prendido la mitad del tiempo, el motor
+    recibe la mitad de la energía y gira a la mitad de velocidad.
+  </p>
+  <p>
+    Eso es <strong>PWM</strong> (modulación por ancho de pulso), y es lo que hace
+    <code>analogWrite(pin, valor)</code> con un valor de 0 a 255.
+  </p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 620 210" width="620" height="210" role="img"
+         aria-label="Comparación de tres señales PWM con distinto ciclo de trabajo">
+      <g>
+        <text x="10" y="24" class="txt-svg" font-size="11" font-weight="700">analogWrite(pin, 64) → 25% → lento</text>
+        <path d="M10 55 L10 35 L50 35 L50 55 L130 55 L130 35 L170 35 L170 55 L250 55 L250 35 L290 35 L290 55 L370 55 L370 35 L410 35 L410 55 L490 55"
+              fill="none" stroke="#4dabf7" stroke-width="2.5"/>
+        <line x1="10" y1="55" x2="600" y2="55" stroke="#d8dce8" stroke-width="1"/>
+      </g>
+      <g transform="translate(0,60)">
+        <text x="10" y="24" class="txt-svg" font-size="11" font-weight="700">analogWrite(pin, 128) → 50% → media máquina</text>
+        <path d="M10 55 L10 35 L90 35 L90 55 L170 55 L170 35 L250 35 L250 55 L330 55 L330 35 L410 35 L410 55 L490 55"
+              fill="none" stroke="#f59e0b" stroke-width="2.5"/>
+        <line x1="10" y1="55" x2="600" y2="55" stroke="#d8dce8" stroke-width="1"/>
+      </g>
+      <g transform="translate(0,120)">
+        <text x="10" y="24" class="txt-svg" font-size="11" font-weight="700">analogWrite(pin, 230) → 90% → casi a fondo</text>
+        <path d="M10 55 L10 35 L152 35 L152 55 L170 55 L170 35 L312 35 L312 55 L330 55 L330 35 L472 35 L472 55 L490 55"
+              fill="none" stroke="#e11d48" stroke-width="2.5"/>
+        <line x1="10" y1="55" x2="600" y2="55" stroke="#d8dce8" stroke-width="1"/>
+      </g>
+      <text x="510" y="98" class="txt-svg-chico">5 V arriba</text>
+      <text x="510" y="114" class="txt-svg-chico">0 V abajo</text>
+    </svg>
+    <p class="diagrama-pie">Cuanto más tiempo pasa arriba, más energía recibe el motor.</p>
+  </div>
+
+  <div class="bloque b-pensar">
+    <div class="bloque-titulo">🤔 Para pensar</div>
+    <p style="margin-bottom:0">
+      Si bajás el PWM demasiado (digamos, 40), el motor <strong>zumba pero no gira</strong>. ¿Por qué?
+      Pista: pensá en el rozamiento de los engranajes de la caja reductora. El motor necesita un
+      empujón mínimo para arrancar. Ese valor mínimo lo vas a tener que descubrir vos, y no es igual
+      en los dos motores.
+    </p>
+  </div>
+
+  <h2>🚀 Desafíos</h2>
+
+  <div class="desafio" data-desafio="1">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 1 · Que las dos ruedas vayan para el mismo lado</label>
+      <span class="nivel n-facil">Fácil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Cargá <code>02a_primer_movimiento.ino</code> con el chasis levantado. Casi seguro que
+        <strong>una rueda gira al revés que la otra</strong>. Es normal: los motores están montados
+        espejados.
+      </p>
+      <p style="margin-bottom:0">Arreglalo de dos formas distintas y decidí cuál te gusta más:</p>
+      <ol>
+        <li><strong>Por hardware:</strong> dando vuelta los dos cables de ese motor en la bornera.</li>
+        <li><strong>Por software:</strong> invirtiendo <code>HIGH</code> y <code>LOW</code> de IN3 e IN4.</li>
+      </ol>
+      <details class="pista-ayuda">
+        <summary>¿Cuál conviene?</summary>
+        <p style="margin-bottom:0">La de hardware, si podés. Así en el código "adelante" significa
+        siempre lo mismo para los dos motores y no tenés que acordarte de una excepción rara a las
+        3 de la tarde de la carrera.</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="2">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 2 · Marcha atrás</label>
+      <span class="nivel n-facil">Fácil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Cargá <code>02b_funciones_de_movimiento.ino</code> y comprobá que las cuatro funciones hacen
+        lo que dice su nombre. Si <code>girarDerecha()</code> gira a la izquierda, arreglá el código
+        (o los cables) hasta que los nombres digan la verdad.
+      </p>
+      <p style="margin-bottom:0" class="chico">
+        Suena a detalle, pero un nombre que miente te va a costar una hora de la parada 4.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="3">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 3 · Encontrá la velocidad mínima</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Con el auto <strong>apoyado en el piso</strong> (no en el aire, el piso tiene rozamiento),
+        bajá <code>velocidad</code> de a 10 hasta encontrar el valor más chico con el que el auto
+        todavía arranca solo. Anotalo, lo vas a necesitar en la parada 6.
+      </p>
+      <p style="margin-bottom:0">
+        Después probá lo mismo <strong>con la batería medio descargada</strong>. ¿Cambia el número?
+        Ahí tenés por qué un auto que andaba perfecto ayer hoy no arranca.
+      </p>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="4">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 4 · Arranque suave</label>
+      <span class="nivel n-medio">Medio</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Programá una <strong>rampa</strong>: que el auto acelere de a poco de 0 a 255 en 3 segundos,
+        se mantenga 2 segundos, y frene de a poco. Usá un <code>for</code>.
+      </p>
+      <details class="pista-ayuda">
+        <summary>Ver el esqueleto</summary>
+        <div class="caja-codigo" style="margin:.5rem 0 0">
+          <div class="codigo-cab"><span class="codigo-nombre">idea</span></div>
+          <pre><code>for (int v = 0; v &lt;= 255; v = v + 5) {
+  analogWrite(ENA, v);
+  analogWrite(ENB, v);
+  delay(60);
+}</code></pre>
+        </div>
+        <p style="margin:.6rem 0 0" class="chico">Ojo: si arrancás en 0 el motor no se mueve hasta
+        pasar su velocidad mínima. Probá arrancar en el valor que encontraste en el desafío 3.</p>
+      </details>
+    </div>
+  </div>
+
+  <div class="desafio" data-desafio="5">
+    <div class="desafio-cab">
+      <input type="checkbox" class="desafio-check">
+      <label class="desafio-titulo">Desafío 5 · La coreografía: dibujá un cuadrado</label>
+      <span class="nivel n-dificil">Difícil</span>
+    </div>
+    <div class="desafio-cuerpo">
+      <p>
+        Programá el auto para que recorra un <strong>cuadrado de 50 cm de lado</strong> en el piso y
+        vuelva más o menos al punto de partida. Cuatro veces: avanzar, girar 90°.
+      </p>
+      <p>El desafío real no es programarlo: es <strong>calibrar los tiempos</strong>. ¿Cuántos
+        milisegundos de <code>girarDerecha()</code> son exactamente 90 grados? Solo lo vas a saber
+        probando. Marcá con cinta el punto de largada.</p>
+      <div class="bloque b-pensar" style="margin:1rem 0 0">
+        <div class="bloque-titulo">🤔 La pregunta que vale oro</div>
+        <p style="margin-bottom:0">
+          Corré el mismo programa tres veces. ¿Cae siempre en el mismo lugar? Casi seguro que no:
+          se va acumulando error en cada giro. <strong>Esa es exactamente la razón por la que
+          existen los sensores.</strong> Un robot que solo cuenta el tiempo va a la deriva; uno que
+          mira el mundo se corrige. Bienvenido a la parada 3.
+        </p>
+      </div>
+      <details class="pista-ayuda">
+        <summary>Ver una posible estructura</summary>
+        <div class="caja-codigo" style="margin:.5rem 0 0">
+          <div class="codigo-cab"><span class="codigo-nombre">idea</span></div>
+          <pre><code>void loop() {
+  for (int lado = 0; lado &lt; 4; lado++) {
+    adelante();
+    delay(1200);        // ajustar hasta que sean 50 cm
+    frenar();
+    delay(300);
+    girarDerecha();
+    delay(450);         // ajustar hasta que sean 90 grados
+    frenar();
+    delay(300);
+  }
+  frenar();
+  delay(5000);          // pausa antes de repetir
+}</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <h2>⚠️ Si no funciona</h2>
+  <div class="tabla-envase">
+    <table>
+      <thead><tr><th>Síntoma</th><th>Revisá esto</th></tr></thead>
+      <tbody>
+        <tr><td>No pasa absolutamente nada</td><td>¿Está el cable de <strong>masa común</strong> entre GND del Arduino y GND del L298N? ¿Está la batería conectada al +12V?</td></tr>
+        <tr><td>Los motores zumban pero no giran</td><td>Velocidad muy baja, o batería descargada. Subí el PWM a 200 y medí la batería.</td></tr>
+        <tr><td>Anda uno solo de los dos motores</td><td>¿Sacaste los <strong>dos</strong> jumpers de ENA y ENB? ¿El ENB está en un pin con ~?</td></tr>
+        <tr><td>Los motores van siempre a fondo</td><td>Te quedó puesto el jumper de ENA/ENB: ignora el PWM.</td></tr>
+        <tr><td>Van a los tirones o se resetea el Arduino</td><td>La batería no da abasto. Pilas nuevas o batería con más corriente.</td></tr>
+        <tr><td>Un motor gira al revés</td><td>Dale vuelta sus dos cables en la bornera. No es un error, es lo normal.</td></tr>
+        <tr><td>El L298N quema al tocarlo</td><td>Desconectá ya. Revisá polaridad de la batería y que no haya un cortocircuito en las borneras.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>✅ ¿Entendiste?</h2>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">1.</span>
+      Conectaste todo pero olvidaste el cable entre el GND del Arduino y el GND del L298N. ¿Qué pasa?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Funciona igual, ese cable es opcional</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Los motores no responden o hacen cosas raras</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> Se quema el Arduino al instante</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Los motores andan pero al revés</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Sin masa común, las señales del Arduino no tienen una referencia compartida con el L298N. Es como gritar instrucciones desde otro planeta. Es el error número uno de este proyecto."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">2.</span>
+      ¿Qué hace <code>analogWrite(ENA, 128)</code>?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Manda exactamente 2,5 voltios al motor</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">B</span> Prende y apaga el pin rapidísimo, la mitad del tiempo prendido</button>
+      <button class="quiz-op" type="button"><span class="letra">C</span> Hace girar el motor 128 grados</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Cambia el sentido de giro</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Eso es PWM. El pin sigue dando 5 V o 0 V, pero alterna tan rápido que el motor (que tiene inercia) se comporta como si recibiera la mitad de la energía."></div>
+  </div>
+
+  <div class="quiz">
+    <p class="quiz-preg"><span class="qnum">3.</span>
+      Querés que el auto gire sobre su propio eje, como un trompo. ¿Qué hacés?</p>
+    <div class="quiz-ops">
+      <button class="quiz-op" type="button"><span class="letra">A</span> Los dos motores adelante, uno más rápido</button>
+      <button class="quiz-op" type="button"><span class="letra">B</span> Freno un motor y dejo el otro adelante</button>
+      <button class="quiz-op" type="button" data-ok="si"><span class="letra">C</span> Un motor adelante y el otro para atrás</button>
+      <button class="quiz-op" type="button"><span class="letra">D</span> Los dos motores para atrás</button>
+    </div>
+    <div class="quiz-devuelta" data-explica="Ruedas en sentidos opuestos = el auto rota sin desplazarse. Si frenás una rueda y dejás la otra, también gira, pero describiendo un arco alrededor de la rueda frenada: ocupa mucho más espacio."></div>
+  </div>
+
+  <div class="bloque b-ok">
+    <div class="bloque-titulo">🎒 Lo que te llevás de esta parada</div>
+    <ul style="margin-bottom:0">
+      <li>El puente H invierte la corriente del motor con cuatro interruptores electrónicos.</li>
+      <li>IN1/IN2 e IN3/IN4 deciden el <em>sentido</em>; ENA y ENB, la <em>velocidad</em>.</li>
+      <li>El GND común entre Arduino y L298N no es opcional.</li>
+      <li>Con solo contar tiempo, el robot acumula error. Necesita mirar el mundo. → Parada 3.</li>
+    </ul>
+  </div>
+
+  <div class="nav-paradas" id="nav-paradas"></div>
+</main>
+
+<footer class="pie">
+  <p>Taller de Robótica · Seguidor de línea con Arduino</p>
+</footer>
+
+<script src="assets/js/comun.js"></script>
+</body>
+</html>
